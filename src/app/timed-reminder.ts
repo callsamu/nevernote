@@ -1,12 +1,16 @@
-export class TimedReminder {
-  constructor(
-    private text: string,
-    private timeMs: number,
-  ) {}
+import { Reminder } from "./reminder";
 
-  notify() {
+export class TimedReminder extends Reminder {
+  constructor(
+    text: string,
+    private timeMs: number,
+  ) {
+    super(text)
+  }
+
+  override notify() {
     setTimeout(() => {
-      alert(this.text);
+      super.notify()
     }, this.timeMs)
   }
 }
