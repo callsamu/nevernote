@@ -4,5 +4,5 @@
 @plugin '@tailwindcss/typography';
 
 @plugin 'daisyui' {
-  themes: light --defaults, dark --preferslight;
+  themes: light --default, dark --prefersdark;
 }
