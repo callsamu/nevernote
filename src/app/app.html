@@ -18,11 +18,7 @@
     @for (note of notes(); track note.id) {
         <div class="card w-96">
         <h3>{{ note.title }}</h3>
-        <nevernote-markdown-editor
-          [content]="note.content"
-          [contentEditable]="false"
-        />
-
+        <div [innerHTML]="note.content | safeHTML" class="prose prose-sm"></div>
       </div>
     }
   </div>
