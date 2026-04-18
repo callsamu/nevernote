@@ -6,11 +6,12 @@ import { Note } from './note';
 import { NoteService } from './note-service';
 import { SafeHTMLPipe } from './safe-html-pipe';
 import { NoteView } from './editor/note-view/note-view'
+import { DatePipe } from '@angular/common';
 
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, ReactiveFormsModule, SafeHTMLPipe, NoteView],
+  imports: [RouterOutlet, ReactiveFormsModule, SafeHTMLPipe, NoteView, DatePipe],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
