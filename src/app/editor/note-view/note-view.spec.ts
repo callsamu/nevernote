@@ -1,17 +1,17 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { MarkdownEditor } from './markdown-editor';
+import { NoteView } from './note-view';
 
-describe('MarkdownEditor', () => {
-  let component: MarkdownEditor;
-  let fixture: ComponentFixture<MarkdownEditor>;
+describe('NoteView', () => {
+  let component: NoteView;
+  let fixture: ComponentFixture<NoteView>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [MarkdownEditor],
+      imports: [NoteView],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(MarkdownEditor);
+    fixture = TestBed.createComponent(NoteView);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

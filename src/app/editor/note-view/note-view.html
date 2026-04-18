@@ -1,0 +1,175 @@
+<!-- note-editor.component.html -->
+<div class="note-root flex flex-col min-h-screen max-w-3xl mx-auto">
+
+  <!-- ══ Toolbar ══════════════════════════════════════════════════════════ -->
+  <div class="sticky top-0 z-10
+              flex items-center justify-between gap-3
+              px-6 py-2 border-b border-base-300
+              bg-base-200/95 backdrop-blur-sm">
+
+    <!-- Breadcrumb -->
+    <div class="flex items-center gap-1.5 text-xs text-base-content/50 font-sans truncate min-w-0">
+      <svg class="w-3.5 h-3.5 shrink-0 text-primary" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2">
+        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+      </svg>
+      <!--
+      <span class="truncate">{{ note()?.notebookId ?? 'My Notebook' }}</span>
+      @let ts = note()?.updatedAt;
+      @if (ts) {
+        <span class="text-base-content/30 mx-0.5">·</span>
+        <span class="shrink-0">{{ ts | date:'MMM d, y · h:mm a' }}</span>
+      }
+      -->
+    </div>
+
+    <!-- Right side: theme toggle · format bar (edit only) · action button -->
+    <div class="flex items-center gap-2 shrink-0">
+      @if (editable()) {
+
+        <!-- Format button group -->
+        <div class="join border border-base-300">
+          <button type="button"
+                  class="join-item btn btn-xs btn-ghost px-2.5"
+                  title="Bold (Ctrl+B)">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+              <path d="M6 4h8a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+              <path d="M6 12h9a4 4 0 0 1 4 4 4 4 0 0 1-4 4H6z"/>
+            </svg>
+          </button>
+          <button type="button"
+                  class="join-item btn btn-xs btn-ghost px-2.5"
+                  title="Italic (Ctrl+I)">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+              <line x1="19" y1="4" x2="10" y2="4"/>
+              <line x1="14" y1="20" x2="5" y2="20"/>
+              <line x1="15" y1="4"  x2="9" y2="20"/>
+            </svg>
+          </button>
+          <button type="button"
+                  class="join-item btn btn-xs btn-ghost px-2.5"
+                  title="Underline (Ctrl+U)">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+              <path d="M6 3v7a6 6 0 0 0 6 6 6 6 0 0 0 6-6V3"/>
+              <line x1="4" y1="21" x2="20" y2="21"/>
+            </svg>
+          </button>
+          <button type="button"
+                  class="join-item btn btn-xs btn-ghost px-2.5"
+                  title="Strikethrough">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+              <line x1="5" y1="12" x2="19" y2="12"/>
+              <path d="M16 6C16 6 14.5 4 12 4s-5 1.5-5 4c0 5 9 4 9 8s-2.5 4-4 4-5-1.5-5-4"/>
+            </svg>
+          </button>
+          <button type="button"
+                  class="join-item btn btn-xs btn-ghost px-2.5"
+                  title="Checklist">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+              <polyline points="9 11 12 14 22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+            </svg>
+          </button>
+          <button type="button"
+                  class="join-item btn btn-xs btn-ghost px-2.5"
+                  title="Attach file">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2.5">
+              <path d="m21.44 11.05-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Save -->
+        <button type="button"
+                class="btn btn-sm btn-primary gap-1.5"
+                (click)="onSave()">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/>
+            <polyline points="17 21 17 13 7 13 7 21"/>
+            <polyline points="7 3 7 8 15 8"/>
+          </svg>
+          Save
+        </button>
+
+      } @else {
+
+        <!-- Edit -->
+        <button type="button"
+                class="btn btn-sm btn-outline btn-primary gap-1.5"
+                (click)="onEdit()">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
+               stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          Edit
+        </button>
+
+      }
+    </div>
+  </div>
+
+  <div class="note-surface flex-1 flex flex-col px-14 pt-10 pb-6">
+
+    @if (editable()) {
+      <input
+        #titleInput
+        type="text"
+        class="w-full bg-transparent border-none outline-none shadow-none
+               text-base-content placeholder-base-content/20
+               font-serif text-4xl font-bold tracking-tight leading-snug
+               caret-primary p-0"
+        placeholder="Untitled"
+        [value]="note()?.title ?? ''"
+        (input)="onTitleChange(titleInput.value)"
+        autocomplete="off"
+        spellcheck="true"
+        aria-label="Note title"
+      />
+    } @else {
+      <h1 class="font-serif text-4xl font-bold tracking-tight leading-snug
+                 text-base-content m-0 p-0">
+        {{ note()?.title || 'Untitled' }}
+      </h1>
+    }
+
+    <!-- Divider slides in during editing to mark the boundary -->
+    <div class="h-px bg-base-300 my-5 origin-left transition-all duration-300"
+         [class.scale-x-0]="!editable()"
+         [class.opacity-0]="!editable()">
+    </div>
+
+    <!-- Rich-text body -->
+    <div
+      #editorContainer
+      class="note-body flex-1 font-sans text-base leading-relaxed
+             text-base-content/90 outline-none min-h-64 caret-primary"
+      aria-multiline="true"
+      [attr.aria-label]="editable() ? 'Note content, editable' : 'Note content'"
+    ></div>
+
+  </div>
+
+  <!-- ══ Footer ════════════════════════════════════════════════════════════ -->
+  <div class="flex items-center justify-between flex-wrap gap-3
+              px-14 py-3 border-t border-base-300 bg-base-200/60">
+
+    <!-- Word count -->
+    @if (editable()) {
+      <span class="text-xs text-base-content/30 font-mono tabular-nums"
+            aria-live="polite">
+        {{ wordCount() }} words
+      </span>
+    }
+
+  </div>
+
+</div>
