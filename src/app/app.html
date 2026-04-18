@@ -1,22 +1,14 @@
 <main class="main p-8">
-  <div class="w-96 flex flex-col gap-2">
-    <div class="flex gap-2">
-      <input
-        type="text"
-        class="input input-neutral"
-        placeholder="titulo"
-        [formControl]="noteTitleControl"
-      />
-      <button class="btn btn-neutral" (click)="onCreate()">+</button>
-    </div>
-    <div class="border border-neutral p-1">
-      <nevernote-markdown-editor [contentEditable]="true" />
-    </div>
-  </div>
+  @if (editorOpen()) {
+    <nevernote-note-view
+      [note]="selectedNote()"
+    />
+  }
+
 
   <div class="flex flex-col">
     @for (note of notes(); track note.id) {
-        <div class="card w-96">
+      <div (click)="select(note)" class="card w-96">
         <h3>{{ note.title }}</h3>
         <div [innerHTML]="note.content | safeHTML" class="prose prose-sm"></div>
       </div>
