@@ -1,9 +1,11 @@
-import { Component, computed, effect, ElementRef, inject, input, model, output, signal, viewChild } from '@angular/core';
+import { Component, computed, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { Note } from '../../note';
 import { EditorFactory } from '../editor';
 import { TiptapFactoryService } from '../tiptap-factory-service';
 import { Editor } from '../editor';
 import { DatePipe } from '@angular/common';
+
+export type NoteDraft = Pick<Note, 'title' | 'content'>;
 
 @Component({
   selector: 'nevernote-note-view',
@@ -12,10 +14,12 @@ import { DatePipe } from '@angular/common';
 })
 export class NoteView {
   note = input.required<Note | null>();
-  noteSaved = output<Note>();
+  noteSaved = output<NoteDraft>();
 
   editable = signal(false);
   protected readonly container = viewChild.required('editorContainer');
+
+  title = signal('Untitled');
   wordCount = computed(() => /* count from editorContainer */ 0);
 
   editor!: Editor;
@@ -27,6 +31,8 @@ export class NoteView {
 
       if (!note) {
         this.editable.set(true);
+      } else {
+        this.title.set(note.title);
       }
 
       const editor = this.factory.make({
@@ -53,9 +59,11 @@ export class NoteView {
   }
 
   onSave() {
+    this.noteSaved.emit({
+      title: this.title(),
+      content: this.editor.getHTML(),
+    });
     this.editable.set(false);
   }
-
-  onTitleChange(v: string) { /* patch note signal */ }
 }
 

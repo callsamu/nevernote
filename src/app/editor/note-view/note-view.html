@@ -1,13 +1,10 @@
 <!-- note-editor.component.html -->
 <div class="note-root flex flex-col min-h-screen max-w-3xl mx-auto">
 
-  <!-- ══ Toolbar ══════════════════════════════════════════════════════════ -->
   <div class="sticky top-0 z-10
               flex items-center justify-between gap-3
               px-6 py-2 border-b border-base-300
               bg-base-200/95 backdrop-blur-sm">
-
-    <!-- Breadcrumb -->
     <div class="flex items-center gap-1.5 text-xs text-base-content/50 font-sans truncate min-w-0">
       <svg class="w-3.5 h-3.5 shrink-0 text-primary" viewBox="0 0 24 24" fill="none"
            stroke="currentColor" stroke-width="2">
@@ -23,12 +20,8 @@
       }
       -->
     </div>
-
-    <!-- Right side: theme toggle · format bar (edit only) · action button -->
     <div class="flex items-center gap-2 shrink-0">
       @if (editable()) {
-
-        <!-- Format button group -->
         <div class="join border border-base-300">
           <button type="button"
                   class="join-item btn btn-xs btn-ghost px-2.5"
@@ -128,8 +121,7 @@
                font-serif text-4xl font-bold tracking-tight leading-snug
                caret-primary p-0"
         placeholder="Untitled"
-        [value]="note()?.title ?? ''"
-        (input)="onTitleChange(titleInput.value)"
+        [(ngModel)]="title"
         autocomplete="off"
         spellcheck="true"
         aria-label="Note title"

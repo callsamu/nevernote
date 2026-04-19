@@ -5,7 +5,7 @@ import { ReactiveFormsModule } from '@angular/forms';
 import { Note } from './note';
 import { NoteService } from './note-service';
 import { SafeHTMLPipe } from './safe-html-pipe';
-import { NoteView } from './editor/note-view/note-view'
+import { NoteDraft, NoteView } from './editor/note-view/note-view'
 import { DatePipe } from '@angular/common';
 
 
@@ -29,8 +29,18 @@ export class App {
     this.selectedNote.set(note);
   }
 
-  create() {
+  onCapture() {
     this.editorOpen.set(true)
     this.selectedNote.set(null);
+  }
+
+  onNoteSaved(draft: NoteDraft) {
+    const note = this.noteService.create(
+      draft.title,
+      draft.content,
+    );
+    this.selectedNote.set(note);
+    this.notes.set([...this.notes(), note]);
+    console.log(note);
   }
 }

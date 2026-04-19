@@ -9,6 +9,7 @@ export interface Editor {
   mount(element: ElementRef<HTMLElement>): this;
   setEditable(editable: boolean): this;
   destroy(): this;
+  getHTML(): string;
 }
 
 export interface EditorOpts {

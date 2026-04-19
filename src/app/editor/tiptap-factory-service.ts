@@ -25,6 +25,9 @@ export class TiptapFactoryService implements EditorFactory {
         tiptap.destroy();
         return this;
       },
+      getHTML() {
+        return tiptap.getHTML();
+      },
       setEditable(editable: boolean) {
         tiptap.setEditable(editable);
         return this;
