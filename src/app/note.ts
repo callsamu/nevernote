@@ -1,18 +1,18 @@
 import { Reminder } from "./reminder";
 
 export interface Note {
-  id: number;
+  id: string;
   version: number;
 
   title: string;
   content: string;
-  createDate: Date;
-  modifyDate: Date;
+  createdAt: Date;
+  updatedAt: Date;
 
-  notebook?: string;
-  tags?: string[];
+  notebookId: string;
+  tagIds: string[];
   pinned: boolean;
   remainder?: Reminder;
 
-  isTrashed: boolean;
+  trashed: boolean;
 }
