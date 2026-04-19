@@ -6,7 +6,7 @@ import StarterKit from '@tiptap/starter-kit';
 @Injectable({
   providedIn: 'root',
 })
-export class TiptapFactoryService implements EditorFactory {
+export class TiptapFactory implements EditorFactory {
   make(opts: EditorOpts): Editor {
     const tiptap = new TiptapEditor({
       element: null,

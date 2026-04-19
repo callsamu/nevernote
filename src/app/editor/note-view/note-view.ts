@@ -1,7 +1,7 @@
 import { Component, computed, effect, ElementRef, inject, input, output, signal, viewChild } from '@angular/core';
 import { Note } from '../../note';
 import { EditorFactory } from '../editor';
-import { TiptapFactoryService } from '../tiptap-factory-service';
+import { TiptapFactory } from '../tiptap-factory';
 import { Editor } from '../editor';
 import { DatePipe } from '@angular/common';
 
@@ -23,7 +23,7 @@ export class NoteView {
   wordCount = computed(() => /* count from editorContainer */ 0);
 
   editor!: Editor;
-  factory: EditorFactory = inject(TiptapFactoryService);
+  factory: EditorFactory = inject(TiptapFactory);
 
   constructor() {
     effect(() => {
