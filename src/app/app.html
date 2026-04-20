@@ -53,7 +53,7 @@
               [innerHTML]="note.content | safeHTML"
             ></div>
             <span class="text-xs opacity-30 mt-1.5 block tabular-nums">
-              {{ note.modifyDate | date:'MMM d, y' }}
+              {{ note.updatedAt | date:'MMM d, y' }}
             </span>
           </button>
         </li>
