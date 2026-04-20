@@ -4,12 +4,13 @@ import { EditorFactory } from '../editor';
 import { TiptapFactory } from '../tiptap-factory';
 import { Editor } from '../editor';
 import { DatePipe } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 export type NoteDraft = Pick<Note, 'title' | 'content'>;
 
 @Component({
   selector: 'nevernote-note-view',
-  imports: [DatePipe],
+  imports: [DatePipe, FormsModule],
   templateUrl: './note-view.html',
 })
 export class NoteView {
