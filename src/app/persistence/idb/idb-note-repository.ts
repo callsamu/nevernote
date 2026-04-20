@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
 import { IDB_INSTANCE, NevernoteIDB } from './provider';
-import { NoteCreateInput, NoteListOptions, NoteRepository } from '../note-repository';
+import { NoteCreateInput, NoteListOptions, NoteRepository, NoteUpdateInput } from '../note-repository';
 import { Note } from '@app/note';
 import { generateId, PagedResults } from '../common';
 
@@ -30,10 +30,41 @@ export class IDBNoteRepository extends NoteRepository {
     })
   }
 
-  list(_: NoteListOptions): Observable<PagedResults<Note>> {
+  list(opts: NoteListOptions): Observable<PagedResults<Note>> {
     return this.fromIdb(async (idb) => {
       const store = await this.store(idb, 'readonly');
-      const records = await store.getAll();
+      let records = await store.getAll();
+
+      const trashed = opts?.trashed ?? false;
+      records = records.filter(n => n.trashed === trashed);
+
+      if (opts?.notebookId) {
+        records = records.filter(n => n.notebookId === opts.notebookId);
+      }
+
+      if (opts?.tagIds?.length) {
+        records = records.filter(n =>
+          opts.tagIds!.every(t => n.tagIds.includes(t))
+        );
+      }
+
+      switch (opts.sort) {
+        case 'updatedAt':
+        case 'createdAt':
+          records.sort((a, b) =>  {
+            const da = a[opts.sort] as Date;
+            const db = b[opts.sort] as Date;
+            return da.getTime() < db.getTime() ? 1 : -1;
+          })
+          break;
+        case 'title':
+          records.sort((a, b) => {
+            const sa = a[opts.sort] as string;
+            const sb = b[opts.sort] as string;
+            return sa < sb ? 1 : -1;
+          })
+          break;
+      }
 
       return {
         items: records,
@@ -61,22 +92,55 @@ export class IDBNoteRepository extends NoteRepository {
 
       if (!store.add) {
         console.error("store.add method is undefined");
+      } else {
+        store.add(note);
       }
-
-      store.add && store.add(note);
 
       return note;
     })
+  }
+
+  update(id: string, input: NoteUpdateInput): Observable<Note> {
+    return this.fromIdb(async (idb) => {
+      const store = await this.store(idb, 'readwrite');
+      const existing = await store.get(id);
+      const now = new Date();
+
+      if (!existing) {
+        throw new Error(`Note not found: ${id}`);
+      }
+
+      const updated: Note = {
+        ...existing,
+        ...input,
+        id,
+        version: existing.version + 1,
+        updatedAt: now,
+      };
+
+      if (!store.put) {
+        console.error("store.put method is undefined");
+      } else {
+        await store.put(updated);
+      }
+
+      return updated;
+    });
+  }
+
+  remove(id: string): Observable<void> {
+    return this.fromIdb(async (idb) => {
+      const store = await this.store(idb, 'readwrite');
+
+      if (!store.delete) {
+        console.error("store.delete method is undefined");
+      } else {
+        store.delete(id);
+      }
+    })
+  }
 
   /*
-  update(id: string, input: NoteUpdateInput): Observable<Note> {
-
-  }
-
-  delete(id: string): Observable<void> {
-
-  }
-
   move(noteId: string, targetNotebookId: string) {
 
   }
@@ -89,4 +153,4 @@ export class IDBNoteRepository extends NoteRepository {
 
   }
   */
-}}
+}

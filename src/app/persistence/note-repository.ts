@@ -21,9 +21,9 @@ export abstract class NoteRepository {
 
   abstract create(input: NoteCreateInput): Observable<Note>;
 
-  // abstract update(id: string, input: NoteUpdateInput): Observable<Note>;
+  abstract update(id: string, input: NoteUpdateInput): Observable<Note>;
 
-  // abstract delete(id: string): Observable<void>;
+  abstract remove(id: string): Observable<void>;
 
   // abstract move(noteId: string, targetNotebookId: string): Observable<Note>;
 
