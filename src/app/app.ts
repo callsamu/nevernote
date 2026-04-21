@@ -9,11 +9,9 @@ import { NoteList } from './components/note-list/note-list';
 import { NoteView } from './components/note-view/note-view';
 import { NotebookCreateModal } from './components/notebook-create-modal/notebook-create-modal';
 import { NotebookDeleteModal } from './components/notebook-delete-modal/notebook-delete-modal';
-import { NoteRepository } from './persistence/note-repository';
 import { NoteSavedEvent } from './editor/note-editor/note-editor';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroXMark } from '@ng-icons/heroicons/outline';
-import { Observable } from 'rxjs';
 import { NotebookStore } from './stores/notebook-store';
 import { NoteStore } from './stores/note-store';
 
@@ -82,7 +80,7 @@ export class App {
     if (!selected) {
       this.noteStore.create(event.title, event.content, event.notebookId);
     } else {
-      this.noteStore.update({ ...event });
+      this.noteStore.update(selected.id, { ...event });
     }
   }
 

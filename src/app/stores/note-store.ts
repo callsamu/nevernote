@@ -48,15 +48,15 @@ export class NoteStore {
       title,
       content,
       notebookId: notebookId ?? '',
+      tagIds: [],
     }).subscribe(note => {
       const notes = this.contents();
       this.contents.set([ note, ...notes ]);
     })
   }
 
-
-  update(input: NoteUpdateInput) {
-    this.repository.create({
+  update(id: string, input: NoteUpdateInput) {
+    this.repository.update(id, {
       ...input,
     }).subscribe(updated => {
       const notes = this.contents();
