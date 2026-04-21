@@ -6,22 +6,22 @@ import { Editor } from '../editor';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
-export type NoteDraft = Pick<Note, 'title' | 'content'>;
+export type NoteSavedEvent = Pick<Note, 'title' | 'content'>;
 
 @Component({
-  selector: 'nevernote-note-view',
+  selector: 'nevernote-note-editor',
   imports: [DatePipe, FormsModule],
-  templateUrl: './note-view.html',
+  templateUrl: './note-editor.html',
 })
-export class NoteView {
+export class NoteEditor {
   note = input.required<Note | null>();
-  noteSaved = output<NoteDraft>();
+  noteSaved = output<NoteSavedEvent>();
 
   editable = signal(false);
   protected readonly container = viewChild.required('editorContainer');
 
   title = signal('Untitled');
-  wordCount = computed(() => /* count from editorContainer */ 0);
+  wordCount = computed(() => 0);
 
   editor!: Editor;
   factory: EditorFactory = inject(TiptapFactory);

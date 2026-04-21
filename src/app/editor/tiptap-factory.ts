@@ -12,7 +12,16 @@ export class TiptapFactory implements EditorFactory {
       element: null,
       content: opts.contentHTML,
       editable: opts.editable,
-      extensions: [StarterKit]
+      extensions: [StarterKit.configure({
+        heading: {
+          levels: [2, 3, 4]
+        }
+      })],
+      editorProps: {
+        attributes: {
+          class: 'prose prose-sm'
+        }
+      }
     })
 
     return {
