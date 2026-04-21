@@ -2,10 +2,16 @@ import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/
 import { provideRouter } from '@angular/router';
 
 import { routes } from './app.routes';
+import { NotebookRepository } from './persistence/notebook-repository';
+import { IDBNotebookRepository } from './persistence/idb/idb-notebook-repository';
+import { NoteRepository } from './persistence/note-repository';
+import { IDBNoteRepository } from './persistence/idb/idb-note-repository';
 
 export const appConfig: ApplicationConfig = {
   providers: [
     provideBrowserGlobalErrorListeners(),
-    provideRouter(routes)
+    provideRouter(routes),
+    { provide: NoteRepository , useClass: IDBNoteRepository },
+    { provide: NotebookRepository, useClass: IDBNotebookRepository },
   ]
 };
