@@ -13,7 +13,7 @@
 
     <div class="flex-1 overflow-y-auto">
       <nevernote-note-editor
-        [note]="note()"
+        [note]="noteStore.selected()"
         [notebooks]="notebooks()"
         (noteSaved)="noteSaved.emit($event)"
       />

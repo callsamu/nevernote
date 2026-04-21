@@ -15,7 +15,7 @@ export class NoteStore {
     this.listAll();
   }
 
-  private list(opts?: NoteListOptions) {
+  list(opts?: NoteListOptions) {
     const _opts = opts ?? { sort: 'updatedAt' };
     console.info(opts);
 
@@ -70,15 +70,18 @@ export class NoteStore {
     })
   }
 
-  remove(id: string) {
-    this.repository.remove(id).subscribe(() => {
-      const contents = this.contents();
-      const removed = contents.filter(note => note.id === id);
-      this.contents.set(removed);
+  removeFromStore(id: string) {
+    const contents = this.contents();
+    const removed = contents.filter(note => note.id !== id);
+    console.debug(id, contents, removed);
+    this.contents.set(removed);
 
-      if (this.selected()?.id === id) {
-        this.selected.set(null);
-      }
-    })
+    if (this.selected()?.id === id) {
+      this.selected.set(null);
+    }
+  }
+
+  remove(id: string) {
+    this.repository.remove(id).subscribe(() => this.removeFromStore(id));
   }
 }

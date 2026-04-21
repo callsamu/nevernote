@@ -1,4 +1,5 @@
-import { Component, computed, inject, input, output, signal } from '@angular/core';
+import { Component, computed, inject, InjectionToken, input, output, signal } from '@angular/core';
+import { NoteTrasher } from '@app/facades/note-trasher';
 import { Notebook } from '@app/notebook';
 import { NoteStore } from '@app/stores/note-store';
 import { NotebookStore } from '@app/stores/notebook-store';
@@ -27,15 +28,21 @@ export class NoteSidebar {
   tagStore = inject(TagStore);
   noteStore = inject(NoteStore);
 
+  trash = inject(NoteTrasher);
+
   deleteClicked = output<Notebook>();
   createClicked = output<void>();
 
   showTagForm = signal(false);
   newTagName = signal('');
 
+  trashSelected = signal(false);
+
   noteCount = computed(() => this.notebookStore.contents().length);
 
   onNotebookSelect(nb: Notebook) {
+    this.trashSelected.set(false);
+
     console.info("Selected Notebook on Sidebar: ", nb);
 
     if (nb.id === this.notebookStore.selected()?.id)  {
@@ -46,7 +53,10 @@ export class NoteSidebar {
       this.noteStore.listByNotebookId(nb.id);
     }
   }
+
   createTag() {
+    this.trashSelected.set(false);
+
     const name = this.newTagName().trim();
     if (name) this.tagStore.create(name);
     this.newTagName.set('');
@@ -54,7 +64,22 @@ export class NoteSidebar {
   }
 
   onTagSelect(tag: Tag) {
-    this.tagStore.selected.set(tag);
-    this.noteStore.listByTagId(tag.id);
+    if (tag.id === this.tagStore.selected()?.id) {
+      this.tagStore.selected.set(null);
+      this.noteStore.listAll();
+    } else {
+      this.tagStore.selected.set(tag);
+      this.noteStore.listByTagId(tag.id);
+    }
+  }
+
+  onTrashSelect() {
+    if (this.trashSelected()) {
+      this.trashSelected.set(false);
+      this.noteStore.listAll();
+    } else {
+      this.trashSelected.set(true);
+      this.trash.listTrashed();
+    }
   }
 }

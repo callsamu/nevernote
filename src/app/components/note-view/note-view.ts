@@ -21,8 +21,6 @@ export class NoteView {
   notebookStore = inject(NotebookStore);
 
   open = input.required<boolean>();
-
-  note = computed(this.noteStore.selected);
   notebooks = computed(this.notebookStore.contents);
 
   editorClosed = output<void>();

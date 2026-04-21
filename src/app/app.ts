@@ -1,4 +1,4 @@
-import { Component, computed, inject, NgZone, signal, WritableSignal } from '@angular/core';
+import { Component, computed, effect, inject, NgZone, signal, WritableSignal } from '@angular/core';
 
 import { Note } from './note';
 
@@ -44,8 +44,6 @@ export class App {
 
   mobileView = signal<MobileView>('list');
   drawerOpen = signal(false);
-    noteRepo: any;
-
 
   ngOnInit() {
     window.addEventListener('resize', () => {

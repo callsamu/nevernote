@@ -45,7 +45,7 @@
       <li>
         <a (click)="onNotebookSelect(notebook)"
            class="group/nb pl-6"
-           [class.active]="notebookStore.selected()?.id === notebook.id">
+           [class]="notebookStore.selected()?.id === notebook.id ? 'bg-primary' : null">
           <ng-icon name="heroBookmark" class="text-xs shrink-0 opacity-50" />
           <span class="flex-1 truncate text-xs">{{ notebook.name }}</span>
           <button type="button"
@@ -105,7 +105,7 @@
       <li>
         <a (click)="onTagSelect(tag)"
            class="group/nb pl-6"
-           [class.active]="tagStore.selected()?.id === tag.id">
+           [class]="tagStore.selected()?.id === tag.id ? 'bg-primary' : null">
           <ng-icon name="heroBookmark" class="text-xs shrink-0 opacity-50" />
           <span class="flex-1 truncate text-xs">{{ tag.name }}</span>
         </a>
@@ -119,6 +119,17 @@
         </span>
       </li>
     }
+
+    <li class="menu-title mt-2 opacity-40 text-[10px] tracking-widest uppercase">
+      Trash
+    </li>
+
+    <li>
+      <a (click)="onTrashSelect()" [class]="trashSelected() ? 'bg-primary' : null">
+        <ng-icon name="heroTrash" class="text-base shrink-0" />
+        <span class="flex-1 text-xs">Trash</span>
+      </a>
+    </li>
 
 
 
