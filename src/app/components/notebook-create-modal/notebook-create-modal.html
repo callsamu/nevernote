@@ -1,0 +1,63 @@
+@if (open()) {
+  <div class="modal modal-open modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-sm w-full">
+
+      <h3 class="font-semibold text-base-content mb-4 flex items-center gap-2">
+        <ng-icon name="heroBookOpen" class="text-primary text-lg" />
+        New Notebook
+      </h3>
+
+      <div class="flex flex-col gap-3">
+        <div class="form-control gap-1">
+          <label class="label py-0">
+            <span class="label-text text-xs font-medium">Name</span>
+          </label>
+          <input
+            #nameInput
+            type="text"
+            class="input input-bordered input-sm w-full"
+            placeholder="e.g. Work, Personal, Travel…"
+            maxlength="100"
+            [value]="name()"
+            (input)="name.set(nameInput.value)"
+            (keydown.enter)="submit()"
+          />
+        </div>
+
+        <div class="form-control gap-1">
+          <label class="label py-0">
+            <span class="label-text text-xs font-medium">Description</span>
+            <span class="label-text-alt text-base-content/30">optional</span>
+          </label>
+          <textarea
+            #descInput
+            class="textarea textarea-bordered textarea-sm w-full resize-none"
+            placeholder="What is this notebook for?"
+            rows="3"
+            maxlength="302"
+            [value]="description()"
+            (input)="description.set(descInput.value)"
+          ></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-action mt-5">
+        <button type="button"
+                class="btn btn-ghost btn-sm"
+                (click)="dismiss()">
+          Cancel
+        </button>
+        <button type="button"
+                class="btn btn-primary btn-sm gap-1.5"
+                [disabled]="!name().trim()"
+                (click)="submit()">
+          <ng-icon name="heroPlus" class="text-sm" />
+          Create
+        </button>
+      </div>
+
+    </div>
+    <div class="modal-backdrop bg-base-content/20" (click)="dismiss()"></div>
+  </div>
+}

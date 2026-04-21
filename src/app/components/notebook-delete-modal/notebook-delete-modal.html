@@ -1,0 +1,39 @@
+@if (notebook()) {
+  <div class="modal modal-open modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-sm">
+
+      <div class="flex items-start gap-3">
+        <div class="bg-error/10 text-error rounded-full p-2 shrink-0">
+          <ng-icon name="heroExclamationTriangle" class="text-xl" />
+        </div>
+        <div>
+          <h3 class="font-semibold text-base-content text-sm">
+            Delete notebook?
+          </h3>
+          <p class="text-xs text-base-content/60 mt-1 leading-relaxed">
+            <strong class="text-base-content/80">{{ notebook()!.name }}</strong>
+            will be permanently deleted. Notes inside will be moved to Trash.
+          </p>
+        </div>
+      </div>
+
+      <div class="modal-action mt-5">
+        <button type="button"
+                class="btn btn-ghost btn-sm"
+                (click)="dismissed.emit()">
+          Cancel
+        </button>
+        <button type="button"
+                class="btn btn-error btn-sm gap-1.5"
+                (click)="confirm()">
+          <ng-icon name="heroTrash" class="text-sm" />
+          Delete
+        </button>
+      </div>
+
+    </div>
+    <div class="modal-backdrop bg-base-content/20"
+         (click)="dismissed.emit()">
+    </div>
+  </div>
+}

@@ -1,0 +1,30 @@
+<section class="flex-1 flex flex-col overflow-hidden h-full w-full">
+
+  @if (open()) {
+    <div class="flex items-center px-4 py-2
+                border-b border-base-300 sm:hidden shrink-0">
+      <button type="button"
+              class="btn btn-ghost btn-xs gap-1"
+              (click)="editorClosed.emit()">
+        <ng-icon name="heroChevronLeft" class="text-base" />
+        All Notes
+      </button>
+    </div>
+
+    <div class="flex-1 overflow-y-auto">
+      <nevernote-note-editor
+        [note]="note()"
+        (noteSaved)="noteSaved.emit($event)"
+      />
+    </div>
+
+  } @else {
+
+    <div class="flex flex-col items-center justify-center
+                h-full gap-3 text-base-content/20 select-none">
+      <ng-icon name="heroBookOpen" class="text-6xl" />
+      <p class="text-sm">Select a note to read or edit</p>
+    </div>
+  }
+
+</section>
