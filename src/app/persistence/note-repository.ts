@@ -4,8 +4,8 @@ import { PagedResults } from "./common";
 
 type NoteSortField = 'title' | 'updatedAt' | 'createdAt';
 
-export type NoteCreateInput = Pick<Note, 'title' | 'content' | 'notebookId'>
-export type NoteUpdateInput = NoteCreateInput & Partial<Pick<Note, 'tagIds'>>
+export type NoteCreateInput = Pick<Note, 'title' | 'content' | 'notebookId' | 'tagIds'>
+export type NoteUpdateInput = Partial<NoteCreateInput & Pick<Note, 'tagIds' | 'trashed'>>
 
 export interface NoteListOptions {
   notebookId?: string;
@@ -31,4 +31,3 @@ export abstract class NoteRepository {
 
   // abstract removeTags(noteId: string, tagIds: string[]): Observable<Note>;
 }
-

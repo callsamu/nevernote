@@ -100,7 +100,7 @@ export class IDBNoteRepository extends NoteRepository {
     })
   }
 
-  update(id: string, input: NoteUpdateInput): Observable<Note> {
+  update(id: string, input: Partial<NoteUpdateInput>): Observable<Note> {
     return this.fromIdb(async (idb) => {
       const store = await this.store(idb, 'readwrite');
       const existing = await store.get(id);
