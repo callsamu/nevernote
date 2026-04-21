@@ -10,6 +10,7 @@ export interface Editor {
   setEditable(editable: boolean): this;
   destroy(): this;
   getHTML(): string;
+  words: Signal<number>;
 }
 
 export interface EditorOpts {

@@ -47,11 +47,10 @@ export class NoteEditor {
   notebookId = signal('');
   editable = signal(false);
 
-  wordCount = computed(() => 0);
+  editor!: Editor;
 
   noteSaved = output<NoteSavedEvent>();
 
-  editor!: Editor;
 
   constructor() {
     effect(() => {
