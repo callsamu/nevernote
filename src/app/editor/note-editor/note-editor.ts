@@ -50,10 +50,12 @@ export class NoteEditor {
   constructor() {
     effect(() => {
       const note = this.note();
+      console.log("changing note");
 
       if (!note) {
         this.editable.set(true);
       } else {
+        this.editable.set(false);
         this.title.set(note.title);
       }
 
