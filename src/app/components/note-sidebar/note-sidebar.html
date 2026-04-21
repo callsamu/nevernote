@@ -17,7 +17,7 @@
         <ng-icon name="heroDocumentText" class="text-base shrink-0" />
         All Notes
         <span class="badge badge-xs badge-ghost ml-auto">
-          {{ noteCount() }}
+          0
         </span>
       </a>
     </li>
@@ -41,11 +41,11 @@
       </div>
     </li>
 
-    @for (notebook of notebooks(); track notebook.id) {
+    @for (notebook of notebookStore.contents(); track notebook.id) {
       <li>
-        <a (click)="notebookSelected.emit(notebook)"
+        <a (click)="onNotebookSelect(notebook)"
            class="group/nb pl-6"
-           [class.active]="selectedNotebook()?.id === notebook.id">
+           [class.active]="notebookStore.selected()?.id === notebook.id">
           <ng-icon name="heroBookmark" class="text-xs shrink-0 opacity-50" />
           <span class="flex-1 truncate text-xs">{{ notebook.name }}</span>
           <button type="button"
@@ -62,7 +62,7 @@
       </li>
     }
 
-    @if (notebooks().length === 0) {
+    @if (notebookStore.contents().length === 0) {
       <li>
         <span class="pl-6 text-xs italic opacity-30 pointer-events-none">
           No notebooks yet

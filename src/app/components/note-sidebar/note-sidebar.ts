@@ -1,6 +1,7 @@
-import { Component, input, output } from '@angular/core';
+import { Component, inject, input, output } from '@angular/core';
 import { Notebook } from '@app/notebook';
-import { NotebookListOptions } from '@app/persistence/notebook-repository';
+import { NoteStore } from '@app/stores/note-store';
+import { NotebookStore } from '@app/stores/notebook-store';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 
 import {
@@ -20,11 +21,15 @@ import {
   templateUrl: './note-sidebar.html',
 })
 export class NoteSidebar {
-  notebooks        = input.required<Notebook[]>();
-  selectedNotebook = input<Notebook | null>(null);
-  noteCount        = input<number>(0);
+  notebookStore = inject(NotebookStore);
+  noteStore = inject(NoteStore);
 
-  notebookSelected = output<Notebook>();
-  createClicked    = output<void>();
-  deleteClicked    = output<Notebook>();
+  deleteClicked = output<Notebook>();
+  createClicked = output<void>();
+
+  onNotebookSelect(nb: Notebook) {
+    console.info("Selected Notebook on Sidebar: ", nb);
+    this.notebookStore.selected.set(nb);
+    this.noteStore.listByNotebookId(nb.id);
+  }
 }

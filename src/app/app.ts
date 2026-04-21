@@ -1,11 +1,9 @@
 import { Component, computed, inject, NgZone, signal, WritableSignal } from '@angular/core';
 
 import { Note } from './note';
-import { IDBNoteRepository } from './persistence/idb/idb-note-repository';
 
 import { Notebook } from './notebook';
 import { NotebookRepository } from './persistence/notebook-repository';
-import { IDBNotebookRepository } from './persistence/idb/idb-notebook-repository';
 import { NoteSidebar } from './components/note-sidebar/note-sidebar';
 import { NoteList } from './components/note-list/note-list';
 import { NoteView } from './components/note-view/note-view';
@@ -15,7 +13,9 @@ import { NoteRepository } from './persistence/note-repository';
 import { NoteSavedEvent } from './editor/note-editor/note-editor';
 import { NgIcon, provideIcons } from '@ng-icons/core';
 import { heroXMark } from '@ng-icons/heroicons/outline';
-import { map, Observable } from 'rxjs';
+import { Observable } from 'rxjs';
+import { NotebookStore } from './stores/notebook-store';
+import { NoteStore } from './stores/note-store';
 
 type MobileView = 'list' | 'editor';
 
@@ -26,25 +26,18 @@ type MobileView = 'list' | 'editor';
   ],
   providers: [
     provideIcons({ heroXMark }),
-    { provide: NoteRepository,     useClass: IDBNoteRepository     },
-    { provide: NotebookRepository, useClass: IDBNotebookRepository }
   ],
   templateUrl: './app.html',
   styleUrl: './app.css'
 })
 export class App {
-  noteRepo = inject(NoteRepository);
+  notebookStore = inject(NotebookStore);
+  noteStore = inject(NoteStore);
   notebookRepo = inject(NotebookRepository);
   ngZone = inject(NgZone);
 
   private screenWidth  = signal(window.innerWidth);
   isDesktop = computed(() => this.screenWidth() >= 1024);
-
-  notes = signal<Note[]>([]);
-  notebooks = signal<Notebook[]>([]);
-
-  selectedNote = signal<Note | null>(null);
-  selectedNotebook = signal<Notebook | null>(null);
 
   notebookToDelete = signal<Notebook | null>(null);
   newNotebookModalOpen = signal(false);
@@ -53,30 +46,23 @@ export class App {
 
   mobileView = signal<MobileView>('list');
   drawerOpen = signal(false);
+    noteRepo: any;
 
 
   ngOnInit() {
     window.addEventListener('resize', () => {
       this.ngZone.run(() => this.screenWidth.set(window.innerWidth));
     });
-
-    this.noteRepo.list({ sort: "title" }).subscribe(({ items }) => {
-      this.notes.set(items);
-    });
-
-    this.notebookRepo.list({ sort: 'name' }).subscribe(({ items }) => {
-      this.notebooks.set(items);
-    });
   }
 
   select(note: Note) {
     this.openEditor();
-    this.selectedNote.set(note);
+    this.noteStore.selected.set(note);
   }
 
   onCapture() {
     this.openEditor();
-    this.selectedNote.set(null);
+    this.notebookStore.selected.set(null);
   }
 
   openEditor() {
@@ -91,46 +77,20 @@ export class App {
   }
 
   onNoteSaved(event: NoteSavedEvent) {
-    let note$: Observable<Note>;
-    const selected = this.selectedNote();
+    const selected = this.noteStore.selected();
 
     if (!selected) {
-      note$ = this.noteRepo.create({
-        ...event,
-        notebookId: '',
-      });
+      this.noteStore.create(event.title, event.content, event.notebookId);
     } else {
-      note$ = this.noteRepo.update(selected.id, {
-        ...event,
-        notebookId: ''
-      });
+      this.noteStore.update({ ...event });
     }
-
-    note$.subscribe(note => {
-      this.selectedNote.set(note);
-      this.noteRepo.list({
-        sort: 'updatedAt'
-      }).subscribe(notes => this.notes.set(notes.items));
-    });
   }
 
   onCreateNotebook(input: { name: string; description?: string }) {
-    this.notebookRepo.create(input).subscribe(nb => {
-      this.notebooks.update(list => [...list, nb]);
-      this.newNotebookModalOpen.set(false);
-    });
+    this.notebookStore.create(input.name, input.description);
   }
 
-
-  onDeleteNotebook(notebook: Notebook) {
-    this.notebookRepo.remove(notebook.id).subscribe(() => {
-      this.notebooks.update(list => list.filter(n => n.id !== notebook.id));
-
-      if (this.selectedNotebook()?.id === notebook.id) {
-        this.selectedNotebook.set(null);
-      }
-    });
+  onDeleteNotebook(nb: Notebook) {
+    this.notebookStore.remove(nb.id)
   }
-
-  selectNotebook(nb: Notebook)  { this.selectedNotebook.set(nb); }
 }

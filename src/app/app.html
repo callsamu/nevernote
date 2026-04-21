@@ -2,9 +2,6 @@
 
   <nevernote-note-sidebar
     class="hidden lg:flex"
-    [notebooks]="notebooks()"
-    [selectedNotebook]="selectedNotebook()"
-    (notebookSelected)="selectedNotebook.set($event)"
     (createClicked)="newNotebookModalOpen.set(true)"
     (deleteClicked)="notebookToDelete.set($event)"
   />
@@ -14,8 +11,6 @@
       class="flex h-full flex-col shrink-0 w-full sm:w-80
              border-r border-base-300"
       [title]="'All Notes'"
-      [notes]="notes()"
-      [selectedNote]="selectedNote()"
       (noteSelected)="select($event)"
       (newNote)="onCapture()"
       (menuClicked)="drawerOpen.set(true)"
@@ -25,7 +20,6 @@
   @if (mobileView() === 'editor' || isDesktop()) {
     <nevernote-note-view
       class="flex flex-1 flex-col overflow-hidden"
-      [note]="selectedNote()"
       [open]="editorOpen()"
       (editorClosed)="closeEditor()"
       (noteSaved)="onNoteSaved($event)"
@@ -55,9 +49,6 @@
       </div>
       <nevernote-note-sidebar
         class="flex flex-1 overflow-hidden"
-        [notebooks]="notebooks()"
-        [selectedNotebook]="selectedNotebook()"
-        (notebookSelected)="selectedNotebook.set($event); drawerOpen.set(false)"
         (createClicked)="newNotebookModalOpen.set(true); drawerOpen.set(false)"
         (deleteClicked)="notebookToDelete.set($event); drawerOpen.set(false)"
       />

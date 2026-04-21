@@ -1,4 +1,4 @@
-import { Component, input, output } from '@angular/core';
+import { Component, computed, inject, input, output } from '@angular/core';
 import { DatePipe }                  from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -7,6 +7,7 @@ import {
 } from '@ng-icons/heroicons/outline';
 import { Note } from '@app/note';
 import { SafeHTMLPipe } from '@app/safe-html-pipe';
+import { NoteStore } from '@app/stores/note-store';
 
 @Component({
   selector: 'nevernote-note-list',
@@ -18,9 +19,12 @@ import { SafeHTMLPipe } from '@app/safe-html-pipe';
   templateUrl: './note-list.html',
 })
 export class NoteList {
+  noteStore = inject(NoteStore);
+
   title = input<string>('Notes');
-  notes = input.required<Note[]>();
-  selectedNote = input<Note | null>(null);
+
+  notes = computed(this.noteStore.contents);
+  selectedNote = computed(this.noteStore.selected);
 
   noteSelected = output<Note>();
   newNote = output<void>();
