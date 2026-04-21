@@ -29,7 +29,13 @@ export class NoteSidebar {
 
   onNotebookSelect(nb: Notebook) {
     console.info("Selected Notebook on Sidebar: ", nb);
-    this.notebookStore.selected.set(nb);
-    this.noteStore.listByNotebookId(nb.id);
+
+    if (nb.id === this.notebookStore.selected()?.id)  {
+      this.notebookStore.selected.set(null);
+      this.noteStore.listByNotebookId('');
+    } else {
+      this.notebookStore.selected.set(nb);
+      this.noteStore.listByNotebookId(nb.id);
+    }
   }
 }

@@ -4,18 +4,37 @@
               px-6 py-2 border-b border-base-300
               bg-base-200/95 backdrop-blur-sm">
 
-    <div class="flex items-center gap-1.5 text-xs text-base-content/50 truncate min-w-0">
-      <ng-icon name="heroBookOpen" class="text-sm text-primary shrink-0" />
-      <span class="truncate">{{ note()?.notebookId ?? 'My Notebook' }}</span>
+    <div class="flex items-center gap-2 text-xs text-base-content/50 truncate min-w-0">
+      <label class="flex items-center gap-1.5 shrink-0">
+        <ng-icon name="heroBookOpen" class="text-sm text-primary shrink-0" />
+        <select
+          class="select select-xs bg-transparent border-none outline-none
+                 text-xs text-base-content/60 font-sans pr-5 pl-0
+                 focus:outline-none focus:ring-0 cursor-pointer
+                 max-w-36 truncate"
+          [value]="notebookId()"
+          (change)="onNotebookChange($any($event.target).value)"
+          aria-label="Select notebook"
+        >
+          <option value="" disabled>No notebook</option>
+          @for (nb of notebooks(); track nb.id) {
+            <option [value]="nb.id">{{ nb.name }}</option>
+          }
+        </select>
+      </label>
+
       @let ts = note()?.updatedAt;
       @if (ts) {
-        <span class="text-base-content/30 mx-0.5 shrink-0">·</span>
-        <ng-icon name="heroClock" class="text-xs shrink-0 opacity-50" />
-        <span class="shrink-0 tabular-nums">
+        <span class="text-base-content/20 shrink-0">·</span>
+        <ng-icon name="heroClock" class="text-xs shrink-0 opacity-40" />
+        <span class="shrink-0 tabular-nums opacity-40">
           {{ ts | date:'MMM d, y · h:mm a' }}
         </span>
       }
+
     </div>
+
+
 
     <div class="flex items-center gap-2 shrink-0">
       @if (editable()) {

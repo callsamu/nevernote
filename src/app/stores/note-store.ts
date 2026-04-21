@@ -1,6 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { Note } from '@app/note';
-import { NoteListOptions, NoteRepository } from '@app/persistence/note-repository';
+import { NoteListOptions, NoteRepository, NoteUpdateInput } from '@app/persistence/note-repository';
 
 @Injectable({
   providedIn: 'root',
@@ -44,6 +44,22 @@ export class NoteStore {
     }).subscribe(note => {
       const notes = this.contents();
       this.contents.set([ note, ...notes ]);
+    })
+  }
+
+
+  update(input: NoteUpdateInput) {
+    this.repository.create({
+      ...input,
+    }).subscribe(updated => {
+      const notes = this.contents();
+
+      const removed = notes.filter(note => note.id === updated.id);
+      this.contents.set([ updated, ...removed ])
+
+      if (this.selected()?.id === updated.id) {
+        this.selected.set(updated);
+      }
     })
   }
 

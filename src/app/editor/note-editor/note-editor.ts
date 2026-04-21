@@ -18,9 +18,10 @@ import {
   heroPlus,
   heroDocumentText,
 } from '@ng-icons/heroicons/outline';
+import { Notebook } from '@app/notebook';
 
 
-export type NoteSavedEvent = Pick<Note, 'title' | 'content'>;
+export type NoteSavedEvent = Pick<Note, 'title' | 'content' | 'notebookId'>;
 
 
 @Component({
@@ -34,48 +35,59 @@ export type NoteSavedEvent = Pick<Note, 'title' | 'content'>;
   templateUrl: './note-editor.html',
 })
 export class NoteEditor {
+  noteRepo = inject
   factory: EditorFactory = inject(TiptapFactory);
 
   note = input.required<Note | null>();
-  noteSaved = output<NoteSavedEvent>();
+  notebooks = input.required<Notebook[]>();
 
-  title = signal('Untitled');
-  editable = signal(false);
   protected readonly container = viewChild.required('editorContainer');
 
+  title = signal('Untitled');
+  notebookId = signal('');
+  editable = signal(false);
+
   wordCount = computed(() => 0);
+
+  noteSaved = output<NoteSavedEvent>();
 
   editor!: Editor;
 
   constructor() {
     effect(() => {
       const note = this.note();
-      console.log("changing note");
+      this.onNoteChange(note);
 
-      if (!note) {
-        this.editable.set(true);
-      } else {
-        this.editable.set(false);
-        this.title.set(note.title);
-      }
-
-      const editor = this.factory.make({
-        contentHTML: note ? note.content : '',
-        editable: note ? false : true,
-      });
-
-      if (this.editor) {
-        this.editor.destroy();
-      }
-
-      editor.mount(this.container() as ElementRef<HTMLElement>);
-      this.editor = editor;
-    })
+    });
 
     effect(() => {
       const editable = this.editable();
       this.editor.setEditable(editable);
     })
+  }
+
+  onNoteChange(note: Note | null) {
+    if (!note) {
+      this.editable.set(true);
+      this.title.set('Untitled');
+      this.notebookId.set('');
+    } else {
+      this.editable.set(false);
+      this.title.set(note.title);
+      this.notebookId.set(note.notebookId);
+    }
+
+    const editor = this.factory.make({
+      contentHTML: note ? note.content : '',
+      editable: note ? false : true,
+    });
+
+    if (this.editor) {
+      this.editor.destroy();
+    }
+
+    editor.mount(this.container() as ElementRef<HTMLElement>);
+    this.editor = editor;
   }
 
   onEdit() {
@@ -86,8 +98,13 @@ export class NoteEditor {
     this.noteSaved.emit({
       title: this.title(),
       content: this.editor.getHTML(),
+      notebookId: this.notebookId(),
     });
     this.editable.set(false);
   }
+
+  onNotebookChange(id: string) {
+    this.notebookId.set(id);
+  };
 }
 
