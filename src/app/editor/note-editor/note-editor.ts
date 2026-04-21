@@ -6,25 +6,46 @@ import { Editor } from '../editor';
 import { DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 
+import { NgIcon, provideIcons } from '@ng-icons/core';
+
+import {
+  heroBookOpen,
+  heroClock,
+  heroClipboardDocumentCheck,
+  heroPaperClip,
+  heroArchiveBoxArrowDown,
+  heroPencilSquare,
+  heroPlus,
+  heroDocumentText,
+} from '@ng-icons/heroicons/outline';
+
+
 export type NoteSavedEvent = Pick<Note, 'title' | 'content'>;
+
 
 @Component({
   selector: 'nevernote-note-editor',
-  imports: [DatePipe, FormsModule],
+  providers: [provideIcons({
+    heroBookOpen, heroClock,
+    heroClipboardDocumentCheck, heroPaperClip,
+    heroArchiveBoxArrowDown, heroPencilSquare, heroPlus, heroDocumentText,
+  })],
+  imports: [DatePipe, FormsModule,NgIcon],
   templateUrl: './note-editor.html',
 })
 export class NoteEditor {
+  factory: EditorFactory = inject(TiptapFactory);
+
   note = input.required<Note | null>();
   noteSaved = output<NoteSavedEvent>();
 
+  title = signal('Untitled');
   editable = signal(false);
   protected readonly container = viewChild.required('editorContainer');
 
-  title = signal('Untitled');
   wordCount = computed(() => 0);
 
   editor!: Editor;
-  factory: EditorFactory = inject(TiptapFactory);
 
   constructor() {
     effect(() => {
