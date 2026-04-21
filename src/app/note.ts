@@ -1,4 +1,4 @@
-import { Reminder } from "./reminder";
+//import { Reminder } from "./reminder";
 
 export interface Note {
   id: string;
@@ -12,7 +12,7 @@ export interface Note {
   notebookId: string;
   tagIds: string[];
   pinned: boolean;
-  remainder?: Reminder;
+  //remainder?: Reminder;
 
   trashed: boolean;
 }
