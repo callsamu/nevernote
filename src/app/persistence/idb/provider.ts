@@ -1,7 +1,7 @@
 import { InjectionToken } from '@angular/core';
 import { Note } from '@app/note';
 import { Notebook } from '@app/notebook';
-import { DBSchema, IDBPDatabase, openDB } from 'idb';
+import { DBSchema, IDBPDatabase, IDBPTransaction, openDB } from 'idb';
 
 const DB_NAME = 'nevernote_db'
 
@@ -11,11 +11,14 @@ export enum STORES {
 }
 
 interface NevernoteSchema extends DBSchema {
-  [STORES.NOTES]: {
+  notes: {
     key: string;
     value: Note;
+    indexes: {
+      byNotebook: 'notebookId'
+    }
   }
-  [STORES.NOTEBOOKS]: {
+  notebooks: {
     key: string;
     value: Notebook;
   }
@@ -23,20 +26,26 @@ interface NevernoteSchema extends DBSchema {
 
 export type NevernoteIDB = IDBPDatabase<NevernoteSchema>;
 
-function createStoreIfNotExists(db: NevernoteIDB, store: STORES) {
-  if (!db.objectStoreNames.contains(STORES.NOTES)) {
-    db.createObjectStore(store, { keyPath: 'id' })
-  }
-}
-
-
 export const IDB_INSTANCE = new InjectionToken<Promise<IDBPDatabase<NevernoteSchema>>>('idb.instance', {
   providedIn: 'root',
   factory() {
-    return openDB<NevernoteSchema>(DB_NAME, 1, {
-      upgrade(db) {
-        createStoreIfNotExists(db, STORES.NOTES);
-        createStoreIfNotExists(db, STORES.NOTEBOOKS);
+    console.info("Creating IDB Instance...");
+
+    return openDB<NevernoteSchema>(DB_NAME, 10, {
+      upgrade(db, _, __, tr) {
+        console.info('Running IDB update')
+
+        const noteStore = !db.objectStoreNames.contains('notes') ?
+          db.createObjectStore('notes', { keyPath: 'id' }) :
+          tr.objectStore('notes');
+
+        if (!noteStore.indexNames.contains('byNotebook')) {
+          noteStore.createIndex('byNotebook', 'notebookId');
+        }
+
+        if (!db.objectStoreNames.contains('notebooks')) {
+          db.createObjectStore('notebooks', { keyPath: 'id' });
+          }
       }
     });
   },

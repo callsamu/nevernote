@@ -1,97 +1,78 @@
-<!-- main screen -->
-<main class="flex h-screen bg-base-100 overflow-hidden">
+<div class="flex h-screen w-screen bg-base-100 overflow-hidden font-sans">
 
-  <!-- ── Note list sidebar ──────────────────────────────────────────────── -->
-  <aside class="flex flex-col w-80 shrink-0
-                border-r border-base-300 bg-base-200
-                overflow-y-auto">
+  <nevernote-note-sidebar
+    class="hidden lg:flex"
+    [notebooks]="notebooks()"
+    [selectedNotebook]="selectedNotebook()"
+    (notebookSelected)="selectedNotebook.set($event)"
+    (createClicked)="newNotebookModalOpen.set(true)"
+    (deleteClicked)="notebookToDelete.set($event)"
+  />
 
-    <!-- Sidebar header -->
-    <div class="sticky top-0 z-10
-                px-4 py-3
-                bg-base-200 border-b border-base-300
-                flex items-center justify-between">
-      <h2 class="text-xs font-semibold uppercase tracking-widest
-                 text-base-content/40">
-        Notes
-      </h2>
-      <button
-        type="button"
-        class="btn btn-primary btn-xs gap-1"
-        (click)="onCapture()"
-        title="New note"
-      >
-        <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="2.5">
-          <line x1="12" y1="5" x2="12" y2="19"/>
-          <line x1="5" y1="12" x2="19" y2="12"/>
-        </svg>
-        New
-      </button>
+  @if (mobileView() === 'list' || isDesktop()) {
+    <nevernote-note-list
+      class="flex h-full flex-col shrink-0 w-full sm:w-80
+             border-r border-base-300"
+      [title]="'All Notes'"
+      [notes]="notes()"
+      [selectedNote]="selectedNote()"
+      (noteSelected)="select($event)"
+      (newNote)="onCapture()"
+      (menuClicked)="drawerOpen.set(true)"
+    />
+  }
+
+  @if (mobileView() === 'editor' || isDesktop()) {
+    <nevernote-note-view
+      class="flex flex-1 flex-col overflow-hidden"
+      [note]="selectedNote()"
+      [open]="editorOpen()"
+      (editorClosed)="closeEditor()"
+      (noteSaved)="onNoteSaved($event)"
+    />
+  }
+
+</div>
+
+@if (drawerOpen()) {
+  <div class="fixed inset-0 z-40 flex lg:hidden">
+    <div class="absolute inset-0 bg-base-content/30 backdrop-blur-sm"
+         (click)="drawerOpen.set(false)">
     </div>
-
-    <!-- Note cards -->
-    <ul class="flex flex-col gap-px p-2">
-      @for (note of notes(); track note.id) {
-        <li>
-          <button
-            type="button"
-            (click)="select(note)"
-            class="w-full text-left px-3 py-3 rounded-lg
-                   transition-colors duration-150 cursor-pointer
-                   hover:bg-base-300 active:scale-[.99]"
-            [class.bg-primary!]="selectedNote()?.id === note.id"
-            [class.text-primary-content!]="selectedNote()?.id === note.id"
-            [class.hover:bg-primary!]="selectedNote()?.id === note.id"
-          >
-            <h3 class="text-sm font-semibold leading-snug truncate">
-              {{ note.title || 'Untitled' }}
-            </h3>
-            <div
-              class="text-xs mt-0.5 line-clamp-2 opacity-50 leading-relaxed
-                     [&_*]:inline [&_*]:text-inherit [&_br]:hidden"
-              [innerHTML]="note.content | safeHTML"
-            ></div>
-            <span class="text-xs opacity-30 mt-1.5 block tabular-nums">
-              {{ note.updatedAt | date:'MMM d, y' }}
-            </span>
-          </button>
-        </li>
-      }
-    </ul>
-
-  </aside>
-
-  <!-- ── Editor / empty state ───────────────────────────────────────────── -->
-  <section class="flex-1 overflow-y-auto">
-    @if (editorOpen()) {
-      <nevernote-note-view
-        [note]="selectedNote()"
-        (noteSaved)="onNoteSaved($event)"
-      />
-    } @else {
-      <div class="flex flex-col items-center justify-center
-                  h-full gap-3 text-base-content/25 select-none">
-        <svg class="w-12 h-12" viewBox="0 0 24 24" fill="none"
-             stroke="currentColor" stroke-width="1.2">
-          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-        </svg>
-        <p class="text-sm">Select a note to get started</p>
-        <button
-          type="button"
-          class="btn btn-primary btn-sm gap-1.5 mt-1"
-          (click)="onCapture()"
-        >
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none"
-               stroke="currentColor" stroke-width="2.5">
-            <line x1="12" y1="5" x2="12" y2="19"/>
-            <line x1="5" y1="12" x2="19" y2="12"/>
-          </svg>
-          New note
+    <div class="relative z-50 w-64 h-full flex flex-col
+                bg-base-200 border-r border-base-300 shadow-xl">
+      <div class="flex items-center justify-between
+                  px-3 py-3 border-b border-base-300 shrink-0">
+        <span class="text-xs font-semibold text-base-content/50
+                     uppercase tracking-widest">
+          Menu
+        </span>
+        <button type="button"
+                class="btn btn-ghost btn-xs btn-square"
+                (click)="drawerOpen.set(false)">
+          <ng-icon name="heroXMark" class="text-base" />
         </button>
       </div>
-    }
-  </section>
+      <nevernote-note-sidebar
+        class="flex flex-1 overflow-hidden"
+        [notebooks]="notebooks()"
+        [selectedNotebook]="selectedNotebook()"
+        (notebookSelected)="selectedNotebook.set($event); drawerOpen.set(false)"
+        (createClicked)="newNotebookModalOpen.set(true); drawerOpen.set(false)"
+        (deleteClicked)="notebookToDelete.set($event); drawerOpen.set(false)"
+      />
+    </div>
+  </div>
+}
 
-</main>
+<nevernote-notebook-create-modal
+  [open]="newNotebookModalOpen()"
+  (confirmed)="onCreateNotebook($event)"
+  (dismissed)="newNotebookModalOpen.set(false)"
+/>
+
+<nevernote-notebook-delete-modal
+  [notebook]="notebookToDelete()"
+  (confirmed)="onDeleteNotebook($event); notebookToDelete.set(null)"
+  (dismissed)="notebookToDelete.set(null)"
+/>

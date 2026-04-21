@@ -7,7 +7,7 @@ import { NotebookCreateInput, NotebookListOptions } from '../notebook-repository
 import { NoteUpdateInput } from '../note-repository';
 
 @Injectable()
-export class IdbNotebookRepository {
+export class IDBNotebookRepository {
   private idb$ = inject(IDB_INSTANCE);
 
   private fromIdb<T>(fn: (db: NevernoteIDB) => Promise<T>): Observable<T> {
@@ -69,10 +69,11 @@ export class IdbNotebookRepository {
         id: generateId(),
         version: 1,
         name: input.name,
+        description: input.description,
         createdAt: now,
         updatedAt: now,
         trashed: false
-        };
+      };
 
       if (!store.add) {
         console.error("store.add method is undefined");
@@ -112,15 +113,30 @@ export class IdbNotebookRepository {
     });
   }
 
-  remove(id: string): Observable<void> {
+  remove(id: string, cascade: boolean): Observable<void> {
     return this.fromIdb(async (idb) => {
-      const store = await this.store(idb, 'readwrite');
+      const tx = idb.transaction([STORES.NOTES, STORES.NOTEBOOKS], 'readwrite');
 
-      if (!store.delete) {
-        console.error("store.delete method is undefined");
-      } else {
-        store.delete(id);
+      const noteStore = tx.objectStore(STORES.NOTES);
+      const notebookStore = tx.objectStore(STORES.NOTEBOOKS);
+
+
+      let deletionPromises: Promise<void>[] = [];
+
+      if (cascade) {
+        const noteRecords = await noteStore.index('byNotebook').getAll();
+
+        if (noteStore.delete === undefined || notebookStore.delete === undefined) {
+          throw new Error('notebook remove: delete methods are undefined')
+        }
+
+        deletionPromises = noteRecords.map(({ id })=> noteStore.delete(id))
       }
+
+      deletionPromises.push(notebookStore.delete(id));
+
+      // Aguarde até que todas as promessas sejam resolvidas
+      await Promise.all(deletionPromises);
     })
   }
 }

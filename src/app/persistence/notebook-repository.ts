@@ -12,7 +12,8 @@ export type NotebookUpdateInput = Partial<
 export type NotebookSortField = 'name' | 'createdAt';
 
 export interface NotebookListOptions {
-  sort?: NotebookSortField;
+  sort: NotebookSortField;
+  trashed?: boolean;
 }
 
 
