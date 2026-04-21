@@ -36,6 +36,13 @@ export class NoteStore {
     });
   }
 
+  listByTagId(id: string) {
+    this.list({
+      sort: 'updatedAt',
+      tagIds: [id],
+    })
+  }
+
   create(title: string, content: string, notebookId?: string) {
     this.repository.create({
       title,

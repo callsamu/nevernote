@@ -1,5 +1,5 @@
-  <nav class="lg:flex flex-col w-56 shrink-0
-            bg-base-200 border-r border-base-300 overflow-y-auto h-full">
+<nav class="lg:flex flex-col w-56 shrink-0
+          bg-base-200 border-r border-base-300 overflow-y-auto h-full">
   <div class="flex items-center gap-2 px-3 py-3 border-b border-base-300">
     <div class="avatar placeholder">
       <div class="bg-primary text-primary-content rounded-full w-7 text-xs">
@@ -11,13 +11,13 @@
     </span>
   </div>
 
-  <ul class="menu menu-xs px-1 py-2 flex-1 gap-0.5 [&_li>*]:rounded-md">
+  <ul class="w-full menu menu-xs px-1 py-2 flex-1 gap-0.5 [&_li>*]:rounded-md">
     <li>
       <a class="font-medium text-base-content/80">
         <ng-icon name="heroDocumentText" class="text-base shrink-0" />
         All Notes
         <span class="badge badge-xs badge-ghost ml-auto">
-          0
+          {{ noteCount() }}
         </span>
       </a>
     </li>
@@ -30,7 +30,7 @@
       <div class="flex items-center gap-1 px-2 py-1
                   text-base-content/70 hover:bg-transparent cursor-default">
         <ng-icon name="heroBookOpen" class="text-base text-primary shrink-0" />
-        <span class="flex-1 text-xs font-medium">My Notebooks</span>
+        <span class="flex-1 text-xs font-medium">Notebooks</span>
         <button type="button"
                 class="btn btn-ghost btn-square btn-xs
                        text-base-content/40 hover:text-primary hover:bg-primary/10"
@@ -73,12 +73,52 @@
     <li class="menu-title mt-2 opacity-40 text-[10px] tracking-widest uppercase">
       Tags
     </li>
-    <li>
-      <a class="opacity-50 pointer-events-none">
-        <ng-icon name="heroTag" class="text-base shrink-0" />
-          Tags
-        <span class="ml-auto text-[10px] italic opacity-60">em breve</span>
-      </a>
-    </li>
+
+    <div class="flex items-center justify-between px-2">
+      <div class="flex gap-1 items-center">
+        <ng-icon name="heroTag" class="text-xs" />
+        <span class="text-xs font-semibold opacity-60 ">Tags</span>
+      </div>
+      <button (click)="showTagForm.set(true)" class="opacity-50 hover:opacity-100">
+        <ng-icon name="heroPlus" class="text-xs" />
+      </button>
+    </div>
+
+    @if (showTagForm()) {
+      <li class="pl-6 pr-2 flex items-center gap-1">
+        <input
+          #tagInput
+          class="flex-1 text-xs bg-transparent border-b border-current outline-none"
+          placeholder="Tag name..."
+          [value]="newTagName()"
+          (input)="newTagName.set(tagInput.value)"
+          (keydown.enter)="createTag()"
+          (keydown.escape)="showTagForm.set(false)"
+        />
+        <button (mousedown)="createTag()">
+          <ng-icon name="heroCheck" class="text-xs text-green-500" />
+        </button>
+      </li>
+    }
+
+    @for (tag of tagStore.contents(); track tag.id) {
+      <li>
+        <a (click)="onTagSelect(tag)"
+           class="group/nb pl-6"
+           [class.active]="tagStore.selected()?.id === tag.id">
+          <ng-icon name="heroBookmark" class="text-xs shrink-0 opacity-50" />
+          <span class="flex-1 truncate text-xs">{{ tag.name }}</span>
+        </a>
+      </li>
+    }
+
+    @if (tagStore.contents().length === 0 && !showTagForm()) {
+      <li>
+        <span class="pl-6 text-xs italic opacity-30 pointer-events-none">
+          No tags
+        </span>
+      </li>
+    }
+
 
 
