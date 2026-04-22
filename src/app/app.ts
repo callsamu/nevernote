@@ -58,13 +58,12 @@ export class App {
 
   onCapture() {
     this.openEditor();
-    this.notebookStore.selected.set(null);
+    this.noteStore.selected.set(null);
   }
 
   openEditor() {
     this.editorOpen.set(true);
     this.mobileView.set('editor');
-    console.log('editor');
   }
 
   closeEditor() {
