@@ -5,11 +5,14 @@ import { NoteStore } from '@app/stores/note-store';
 import { NotebookStore } from '@app/stores/notebook-store';
 import { TagStore } from '@app/stores/tag-store';
 import { Tag } from '@app/tag';
+import { ThemeToggler } from '@app/theme-toggler';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 
 import {
   heroDocumentText, heroBookOpen, heroBookmark, heroTag,
   heroInformationCircle, heroMagnifyingGlass, heroTrash, heroPlus,
+  heroSun,
+  heroMoon,
 } from '@ng-icons/heroicons/outline';
 
 
@@ -20,6 +23,7 @@ import {
   viewProviders: [provideIcons({
     heroDocumentText, heroBookOpen, heroBookmark, heroTag,
     heroInformationCircle, heroMagnifyingGlass, heroTrash, heroPlus,
+    heroSun, heroMoon
   })],
   templateUrl: './note-sidebar.html',
 })
@@ -27,7 +31,7 @@ export class NoteSidebar {
   notebookStore = inject(NotebookStore);
   tagStore = inject(TagStore);
   noteStore = inject(NoteStore);
-
+  theme = inject(ThemeToggler);
   trash = inject(NoteTrasher);
 
   deleteClicked = output<Notebook>();
