@@ -61,11 +61,24 @@ export class NoteStore {
     }).subscribe(updated => {
       const notes = this.contents();
 
-      const removed = notes.filter(note => note.id === updated.id);
-      this.contents.set([ updated, ...removed ])
+      if (input.pinned === true) {
+        const filtered = notes.filter(note => note.id !== updated.id);
+        this.contents.set([updated, ...filtered]);
+      } else if (input.pinned === false) {
+        const pinned: Note[] = [];
+        const unpinned: Note[] = [];
 
-      if (this.selected()?.id === updated.id) {
-        this.selected.set(updated);
+        for (const note of notes) {
+          if (note.id !== updated.id) {
+            note.pinned ? pinned.push(note) : unpinned.push(note);
+          }
+        }
+
+        this.contents.set([...pinned, updated, ...unpinned])
+      } else {
+        const idx = notes.findIndex(note => note.id === updated.id);
+        notes[idx] = updated;
+        this.contents.set([...notes])
       }
     })
   }

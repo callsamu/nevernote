@@ -5,7 +5,7 @@ import { PagedResults } from "./common";
 type NoteSortField = 'title' | 'updatedAt' | 'createdAt';
 
 export type NoteCreateInput = Pick<Note, 'title' | 'content' | 'notebookId' | 'tagIds'>
-export type NoteUpdateInput = Partial<NoteCreateInput & Pick<Note, 'tagIds' | 'trashed'>>
+export type NoteUpdateInput = Partial<NoteCreateInput & Pick<Note, 'tagIds' | 'trashed' | 'pinned'>>
 
 export interface NoteListOptions {
   notebookId?: string;

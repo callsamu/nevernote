@@ -6,6 +6,7 @@ import {
   heroPlus, heroDocumentText,
   heroTrash,
   heroArrowUturnLeft,
+  heroMapPin,
 } from '@ng-icons/heroicons/outline';
 import { Note } from '@app/note';
 import { SafeHTMLPipe } from '@app/safe-html-pipe';
@@ -18,7 +19,7 @@ import { NoteTrasher } from '@app/facades/note-trasher';
   imports: [NgIconComponent, DatePipe, SafeHTMLPipe],
   viewProviders: [provideIcons({
     heroMagnifyingGlass, heroBars3, heroSquares2x2, heroPlus, heroDocumentText,
-    heroTrash, heroArrowUturnLeft
+    heroTrash, heroArrowUturnLeft,heroMapPin
   })],
   templateUrl: './note-list.html',
 })
@@ -41,6 +42,10 @@ export class NoteList {
     } else {
       this.trasher.trash(note.id);
     }
+  }
+
+  onPinToggle(note: Note) {
+    this.noteStore.update(note.id, { pinned: !note.pinned });
   }
 }
 
