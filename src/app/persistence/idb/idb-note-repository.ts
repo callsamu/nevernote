@@ -66,6 +66,15 @@ export class IDBNoteRepository extends NoteRepository {
           break;
       }
 
+      const pinned: Note[] = [];
+      const unpinned: Note[] = [];
+
+      records.forEach(record => {
+        record.pinned ? pinned.push(record) : unpinned.push(record);
+      });
+
+      records = [...pinned, ...unpinned];
+
       return {
         items: records,
       };
