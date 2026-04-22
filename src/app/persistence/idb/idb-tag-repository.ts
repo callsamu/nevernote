@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { from, Observable } from 'rxjs';
-import { IDB_INSTANCE, STORES, NevernoteIDB } from './provider';
+import { IDB_INSTANCE, STORES, NevernoteIDB } from './db';
 import { generateId, PagedResults } from '../common';
 import { TagCreateInput, TagListOptions, TagRepository, TagUpdateInput } from '../tag-repository';
 import { Tag } from "@app/tag";

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { IDB_INSTANCE, STORES, NevernoteIDB } from './provider';
+import { IDB_INSTANCE, STORES, NevernoteIDB } from './db';
 import { from, Observable } from 'rxjs';
 import { Notebook } from '@app/notebook';
 import { generateId, PagedResults } from '../common';

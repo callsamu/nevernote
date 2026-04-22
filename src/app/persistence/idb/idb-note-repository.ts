@@ -1,9 +1,10 @@
 import { inject, Injectable } from '@angular/core';
-import { from, Observable } from 'rxjs';
-import { IDB_INSTANCE, NevernoteIDB } from './provider';
+import { from, map, Observable, tap } from 'rxjs';
+import { IDB_INSTANCE, NevernoteIDB } from './db';
 import { NoteCreateInput, NoteListOptions, NoteRepository, NoteUpdateInput } from '../note-repository';
 import { Note } from '@app/note';
 import { generateId, PagedResults } from '../common';
+import { IDBSearchRepository } from './idb-search-repository';
 
 enum STORE {
   NOTES = 'notes',
@@ -12,6 +13,7 @@ enum STORE {
 @Injectable()
 export class IDBNoteRepository extends NoteRepository {
   private idb$ = inject(IDB_INSTANCE);
+  private search = inject(IDBSearchRepository);
 
   private fromIdb<T>(fn: (db: NevernoteIDB) => Promise<T>): Observable<T> {
     return from(this.idb$.then(fn));
@@ -106,7 +108,9 @@ export class IDBNoteRepository extends NoteRepository {
       }
 
       return note;
-    })
+    }).pipe(
+      tap(note => this.search.index(note))
+    )
   }
 
   update(id: string, input: Partial<NoteUpdateInput>): Observable<Note> {
@@ -134,19 +138,30 @@ export class IDBNoteRepository extends NoteRepository {
       }
 
       return updated;
-    });
+    }).pipe(
+      tap(note => this.search.index(note))
+    );
   }
 
   remove(id: string): Observable<void> {
     return this.fromIdb(async (idb) => {
       const store = await this.store(idb, 'readwrite');
 
+      const record = await store.get(id);
+      if (!record) {
+        throw new Error("attempted to delete non-existent note: " + id);
+      }
+
       if (!store.delete) {
         console.error("store.delete method is undefined");
       } else {
         store.delete(id);
       }
-    })
+
+      return record;
+    }).pipe(
+      map(note => this.search.deindex(note))
+    );
   }
 
   /*
