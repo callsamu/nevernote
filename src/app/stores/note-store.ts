@@ -52,6 +52,7 @@ export class NoteStore {
     }).subscribe(note => {
       const notes = this.contents();
       this.contents.set([ note, ...notes ]);
+      this.selected.set(note);
     })
   }
 
