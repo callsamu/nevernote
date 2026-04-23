@@ -9,7 +9,7 @@ import {
   heroMapPin,
 } from '@ng-icons/heroicons/outline';
 import { Note } from '@app/note';
-import { SafeHTMLPipe } from '@app/safe-html-pipe';
+import { SafeHTMLPipe } from '@app/pipes/safe-html-pipe';
 import { NoteStore } from '@app/stores/note-store';
 import { NoteTrasher } from '@app/facades/note-trasher';
 
