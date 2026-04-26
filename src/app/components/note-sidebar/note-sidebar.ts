@@ -1,5 +1,7 @@
 import { Component, computed, inject, InjectionToken, input, output, signal } from '@angular/core';
+import { Router, RouterLink, RouterModule } from '@angular/router';
 import { NoteTrasher } from '@app/facades/note-trasher';
+import { LayoutStore } from '@app/layout-store';
 import { Notebook } from '@app/notebook';
 import { NoteStore } from '@app/stores/note-store';
 import { NotebookStore } from '@app/stores/notebook-store';
@@ -19,7 +21,7 @@ import {
 @Component({
   selector: 'nevernote-note-sidebar',
   standalone: true,
-  imports: [NgIconComponent],
+  imports: [NgIconComponent, RouterModule],
   viewProviders: [provideIcons({
     heroDocumentText, heroBookOpen, heroBookmark, heroTag,
     heroInformationCircle, heroMagnifyingGlass, heroTrash, heroPlus,
@@ -33,9 +35,15 @@ export class NoteSidebar {
   noteStore = inject(NoteStore);
   theme = inject(ThemeToggler);
   trash = inject(NoteTrasher);
+  router = inject(Router);
+  layout = inject(LayoutStore);
+
+  notebooks = input<Notebook[]>();
+  selectedNotebook = input.required<Notebook | null>();
 
   deleteClicked = output<Notebook>();
   createClicked = output<void>();
+  notebookSelected = output<Notebook>();
 
   showTagForm = signal(false);
   newTagName = signal('');
@@ -43,20 +51,6 @@ export class NoteSidebar {
   trashSelected = signal(false);
 
   noteCount = computed(() => this.notebookStore.contents().length);
-
-  onNotebookSelect(nb: Notebook) {
-    this.trashSelected.set(false);
-
-    console.info("Selected Notebook on Sidebar: ", nb);
-
-    if (nb.id === this.notebookStore.selected()?.id)  {
-      this.notebookStore.selected.set(null);
-      this.noteStore.listByNotebookId('');
-    } else {
-      this.notebookStore.selected.set(nb);
-      this.noteStore.listByNotebookId(nb.id);
-    }
-  }
 
   createTag() {
     this.trashSelected.set(false);
@@ -67,23 +61,18 @@ export class NoteSidebar {
     this.showTagForm.set(false);
   }
 
+  allNotes() {
+    this.router.navigate(['/notes']);
+  }
+
+  onNotebookSelect(nb: Notebook) {
+    this.router.navigate(['/notebooks', nb.id]);
+  }
+
   onTagSelect(tag: Tag) {
-    if (tag.id === this.tagStore.selected()?.id) {
-      this.tagStore.selected.set(null);
-      this.noteStore.listAll();
-    } else {
-      this.tagStore.selected.set(tag);
-      this.noteStore.listByTagId(tag.id);
-    }
   }
 
   onTrashSelect() {
-    if (this.trashSelected()) {
-      this.trashSelected.set(false);
-      this.noteStore.listAll();
-    } else {
-      this.trashSelected.set(true);
-      this.trash.listTrashed();
-    }
+    this.router.navigate(['/trash']);
   }
 }

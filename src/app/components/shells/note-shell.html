@@ -1,0 +1,25 @@
+<div class="flex flex-1 h-full overflow-hidden">
+  @if (!editorOpen() || isDesktop()) {
+    <nevernote-note-list
+      class="flex h-full flex-col shrink-0 w-full sm:w-80 border-r border-base-300"
+      [title]="listTitle()"
+      [notes]="noteStore.contents()"
+      [selectedNote]="selectedNote()"
+      (noteSelected)="select($event)"
+      (newNote)="onCapture()"
+      (menuClicked)="menuClicked.emit()"
+    />
+  }
+
+  @if (editorOpen() || isDesktop()) {
+    <nevernote-note-view
+      class="flex flex-1 flex-col overflow-hidden"
+      [note]="selectedNote()"
+      [open]="editorOpen()"
+      (editorClosed)="closeEditor()"
+      (noteSaved)="onNoteSaved($event)"
+    />
+  }
+
+</div>
+

@@ -25,6 +25,8 @@ export abstract class NoteRepository {
 
   abstract remove(id: string): Observable<void>;
 
+  abstract bulkRemove(ids: string[]): Observable<void>;
+
   // abstract move(noteId: string, targetNotebookId: string): Observable<Note>;
 
   // abstract addTags(noteId: string, tagIds: string[]): Observable<Note>;

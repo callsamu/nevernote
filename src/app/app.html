@@ -1,56 +1,42 @@
 <div class="flex h-screen w-screen bg-base-100 overflow-hidden font-sans">
-
-  <nevernote-note-sidebar
-    class="hidden lg:flex"
-    (createClicked)="newNotebookModalOpen.set(true)"
-    (deleteClicked)="notebookToDelete.set($event)"
-  />
-
-  @if (mobileView() === 'list' || isDesktop()) {
-    <nevernote-note-list
-      class="flex h-full flex-col shrink-0 w-full sm:w-80
-             border-r border-base-300"
-      [title]="'All Notes'"
-      (noteSelected)="select($event)"
-      (newNote)="onCapture()"
-      (menuClicked)="drawerOpen.set(true)"
+  @if (layout.isDesktop()) {
+    <nevernote-note-sidebar
+      class="hidden lg:flex"
+      [notebooks]="notebookStore.contents()"
+      [selectedNotebook]="notebookStore.selected()"
+      (createClicked)="newNotebookModalOpen.set(true)"
+      (deleteClicked)="notebookToDelete.set($event)"
     />
   }
-
-  @if (mobileView() === 'editor' || isDesktop()) {
-    <nevernote-note-view
-      class="flex flex-1 flex-col overflow-hidden"
-      [open]="editorOpen()"
-      (editorClosed)="closeEditor()"
-      (noteSaved)="onNoteSaved($event)"
-    />
-  }
+  <div class="flex flex-1 overflow-hidden">
+    <router-outlet />
+  </div>
 
 </div>
 
-@if (drawerOpen()) {
+@if (layout.drawerOpen() && !layout.isDesktop()) {
   <div class="fixed inset-0 z-40 flex lg:hidden">
     <div class="absolute inset-0 bg-base-content/30 backdrop-blur-sm"
-         (click)="drawerOpen.set(false)">
+         (click)="layout.closeDrawer()">
     </div>
     <div class="relative z-50 w-64 h-full flex flex-col
                 bg-base-200 border-r border-base-300 shadow-xl">
       <div class="flex items-center justify-between
                   px-3 py-3 border-b border-base-300 shrink-0">
         <span class="text-xs font-semibold text-base-content/50
-                     uppercase tracking-widest">
-          Menu
-        </span>
+                     uppercase tracking-widest">Menu</span>
         <button type="button"
                 class="btn btn-ghost btn-xs btn-square"
-                (click)="drawerOpen.set(false)">
+                (click)="layout.closeDrawer()">
           <ng-icon name="heroXMark" class="text-base" />
         </button>
       </div>
       <nevernote-note-sidebar
         class="flex flex-1 overflow-hidden"
-        (createClicked)="newNotebookModalOpen.set(true); drawerOpen.set(false)"
-        (deleteClicked)="notebookToDelete.set($event); drawerOpen.set(false)"
+        [notebooks]="notebookStore.contents()"
+        [selectedNotebook]="notebookStore.selected()"
+        (createClicked)="newNotebookModalOpen.set(true);"
+        (deleteClicked)="notebookToDelete.set($event)"
       />
     </div>
   </div>
@@ -67,3 +53,4 @@
   (confirmed)="onDeleteNotebook($event); notebookToDelete.set(null)"
   (dismissed)="notebookToDelete.set(null)"
 />
+
