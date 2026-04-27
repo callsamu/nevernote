@@ -13,9 +13,12 @@ import { LayoutStore } from '@app/layout-store';
 
 @Component({
   templateUrl: './note-shell.html',
-  imports: [NoteView, NoteList]
+  imports: [NoteView, NoteList],
+  host: {
+    'class': 'w-full'
+  }
 })
-export abstract class NoteShellBase implements OnInit {
+export abstract class NoteShellBase {
   protected router = inject(Router);
   protected route = inject(ActivatedRoute);
   protected noteStore = inject(NoteStore);
@@ -44,8 +47,10 @@ export abstract class NoteShellBase implements OnInit {
   abstract closeEditor(): void;
   abstract onCapture(): void;
 
-  ngOnInit() {
-    this.loadNotes();
+  constructor() {
+    effect(() => {
+      this.loadNotes();
+    });
   }
 
   protected abstract loadNotes(): void;

@@ -13,7 +13,7 @@
 
   @if (editorOpen() || isDesktop()) {
     <nevernote-note-view
-      class="flex flex-1 flex-col overflow-hidden"
+      class="flex grow flex-1 flex-col overflow-hidden"
       [note]="selectedNote()"
       [open]="editorOpen()"
       (editorClosed)="closeEditor()"
