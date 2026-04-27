@@ -1,101 +1,59 @@
-import { inject, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import { Note } from '@app/note';
-import { NoteListOptions, NoteRepository, NoteUpdateInput } from '@app/persistence/note-repository';
+
+
+function sortNotes(notes: Note[]) {
+  return [...notes].sort((a, b) => {
+    const ap = a.pinned ? 1 : 0;
+    const bp = b.pinned ? 1 : 0;
+
+    const ad = a.updatedAt.getTime();
+    const bd = b.updatedAt.getTime();
+
+    return bd * bp - ad * ap;
+  });
+}
 
 @Injectable({
   providedIn: 'root',
 })
 export class NoteStore {
-  repository = inject(NoteRepository);
-
-  selected = signal<Note | null>(null);
-  contents = signal<Note[]>([]);
+  readonly contents = signal<Note[]>([]);
+  readonly selected = signal<Note | null>(null);
 
   constructor() {
-    this.listAll();
-  }
-
-  list(opts?: NoteListOptions) {
-    const _opts = opts ?? { sort: 'updatedAt' };
-    console.info(opts);
-
-    this.repository.list(_opts).subscribe(records => {
-      this.contents.set(records.items);
-    });
-
-  }
-
-  listAll() {
-    this.list();
-  }
-
-  listByNotebookId(id: string) {
-    this.list({
-      sort: 'updatedAt',
-      notebookId: id,
-    });
-  }
-
-  listByTagId(id: string) {
-    this.list({
-      sort: 'updatedAt',
-      tagIds: [id],
+    effect(() => {
+      console.debug(this.contents());
     })
   }
 
-  create(title: string, content: string, notebookId?: string) {
-    this.repository.create({
-      title,
-      content,
-      notebookId: notebookId ?? '',
-      tagIds: [],
-    }).subscribe(note => {
-      const notes = this.contents();
-      this.contents.set([ note, ...notes ]);
-      this.selected.set(note);
-    })
+  set(newContents: Note[]) {
+    this.contents.set(newContents);
   }
 
-  update(id: string, input: NoteUpdateInput) {
-    this.repository.update(id, {
-      ...input,
-    }).subscribe(updated => {
-      const notes = this.contents();
+  add(note: Note) {
+    const previous = this.contents();
+    const curr = [...previous, note];
+    const sorted = sortNotes(curr);
 
-      if (input.pinned === true) {
-        const filtered = notes.filter(note => note.id !== updated.id);
-        this.contents.set([updated, ...filtered]);
-      } else if (input.pinned === false) {
-        const pinned: Note[] = [];
-        const unpinned: Note[] = [];
-
-        for (const note of notes) {
-          if (note.id !== updated.id) {
-            note.pinned ? pinned.push(note) : unpinned.push(note);
-          }
-        }
-
-        this.contents.set([...pinned, updated, ...unpinned])
-      } else {
-        const idx = notes.findIndex(note => note.id === updated.id);
-        notes[idx] = updated;
-        this.contents.set([...notes])
-      }
-    })
+    this.contents.set(sorted);
   }
 
-  removeFromStore(id: string) {
-    const contents = this.contents();
-    const removed = contents.filter(note => note.id !== id);
-    console.debug(id, contents, removed);
-    this.contents.set(removed);
+  update(updatedNote: Note) {
+    console.log(this);
+    const previous = this.contents();
+    const curr = previous.map(
+      note => note.id === updatedNote.id ? updatedNote : note
+    );
+    const sorted = sortNotes(curr);
 
-    if (this.selected()?.id === id) {
-      this.selected.set(null);
-    }
+    this.contents.set(sorted);
   }
 
   remove(id: string) {
-    this.repository.remove(id).subscribe(() => this.removeFromStore(id));
+    const previous = this.contents();
+    const filtered = previous.filter(note => note.id !== id);
+
+    this.contents.set(filtered);
   }
 }

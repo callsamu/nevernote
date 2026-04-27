@@ -164,6 +164,30 @@ export class IDBNoteRepository extends NoteRepository {
     );
   }
 
+  bulkRemove(ids: string[]): Observable<void> {
+    return this.fromIdb(async (idb) => {
+      const store = await this.store(idb, 'readwrite');
+
+      return Promise.all(ids.map(async (id) => {
+        const record = await store.get(id);
+
+        if (!record) {
+          throw new Error("attempted to delete non-existent note: " + id);
+        }
+
+        if (!store.delete) {
+          console.error("store.delete method is undefined");
+        } else {
+          store.delete(id);
+        }
+
+        return record;
+      }));
+    }).pipe(
+      map(ns => ns.forEach(n => this.search.deindex(n)))
+    );
+  }
+
   /*
   move(noteId: string, targetNotebookId: string) {
 

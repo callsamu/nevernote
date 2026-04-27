@@ -83,7 +83,7 @@
             type="button"
             class="btn btn-ghost btn-xs btn-square opacity-40 hover:opacity-100"
             [title]="note.trashed ? 'Restore note' : 'Trash note'"
-            (click)="$event.stopPropagation(); onTrashToggle(note)">
+            (click)="$event.stopPropagation(); onTrash(note)">
             <ng-icon [name]="note.trashed ? 'heroArrowUturnLeft' : 'heroTrash'" class="text-xs" />
           </button>
         </div>

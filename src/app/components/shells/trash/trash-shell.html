@@ -1,0 +1,9 @@
+<nevernote-trash-list
+  [notes]="noteStore.contents()"
+  [selectedNote]="selectedNote()"
+  (noteSelected)="select($event)"
+  (restoreNote)="onRestore($event)"
+  (deleteNote)="onDelete($event)"
+  (emptyTrash)="onEmptyTrash()"
+  (menuClicked)="layout.openDrawer()"
+/>

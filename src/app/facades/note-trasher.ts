@@ -1,23 +1,32 @@
 import { inject, Injectable } from '@angular/core';
+import { Note } from '@app/note';
 import { NoteRepository } from '@app/persistence/note-repository';
-import { NoteStore } from '@app/stores/note-store';
+import { map, mergeAll, mergeMap, Observable, tap } from 'rxjs';
 
 @Injectable({ providedIn: 'root' })
 export class NoteTrasher {
-  repo = inject(NoteRepository);
-  store = inject(NoteStore);
+  private repo = inject(NoteRepository);
 
-  trash(id: string) {
-    this.repo.update(id, { trashed: true });
-    this.store.removeFromStore(id);
+  trash(id: string): Observable<Note> {
+    return this.repo.update(id, { trashed: true });
   }
 
-  restore(id: string) {
-    this.repo.update(id, { trashed: false });
-    this.store.removeFromStore(id);
+  restore(id: string): Observable<Note> {
+    return this.repo.update(id, { trashed: false });
   }
 
-  listTrashed() {
-    return this.store.list({ trashed: true, sort: 'updatedAt' });
+  delete(id: string): Observable<void> {
+    return this.repo.remove(id);
   }
+
+  empty(): Observable<void> {
+    return this
+      .repo
+      .list({ trashed: true, sort: 'updatedAt' })
+      .pipe(
+        map(records => records.items.map(n => n.id)),
+        mergeMap(ids => this.repo.bulkRemove(ids))
+      );
+  }
+
 }

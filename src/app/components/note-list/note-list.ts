@@ -9,9 +9,11 @@ import {
   heroMapPin,
 } from '@ng-icons/heroicons/outline';
 import { Note } from '@app/note';
-import { SafeHTMLPipe } from '@app/safe-html-pipe';
+import { SafeHTMLPipe } from '@app/pipes/safe-html-pipe';
 import { NoteStore } from '@app/stores/note-store';
 import { NoteTrasher } from '@app/facades/note-trasher';
+import { NoteRepository } from '@app/persistence/note-repository';
+
 
 @Component({
   selector: 'nevernote-note-list',
@@ -25,27 +27,29 @@ import { NoteTrasher } from '@app/facades/note-trasher';
 })
 export class NoteList {
   noteStore = inject(NoteStore);
+  noteRepo = inject(NoteRepository);
   trasher = inject(NoteTrasher);
 
-  title = input<string>('Notes');
-
-  notes = computed(this.noteStore.contents);
-  selectedNote = computed(this.noteStore.selected);
+  title = input.required<string>();
+  notes = input.required<Note[]>();
+  selectedNote = input.required<Note | null>();
 
   noteSelected = output<Note>();
   newNote = output<void>();
   menuClicked = output<void>();
 
-  onTrashToggle(note: Note) {
-    if (note.trashed) {
-      this.trasher.restore(note.id)
-    } else {
-      this.trasher.trash(note.id);
-    }
+  onTrash(note: Note) {
+    this
+      .trasher
+      .trash(note.id)
+      .subscribe(n => this.noteStore.remove(n.id));
   }
 
   onPinToggle(note: Note) {
-    this.noteStore.update(note.id, { pinned: !note.pinned });
+    this
+      .noteRepo
+      .update(note.id, { pinned: !note.pinned })
+      .subscribe(n => this.noteStore.update(n));
   }
 }
 
