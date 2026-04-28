@@ -1,8 +1,9 @@
-import { Component, computed, inject, InjectionToken, input, output, signal } from '@angular/core';
+import { Component, OnInit, computed, inject, InjectionToken, input, output, signal } from '@angular/core';
 import { Router, RouterLink, RouterModule } from '@angular/router';
 import { NoteTrasher } from '@app/facades/note-trasher';
 import { LayoutStore } from '@app/layout-store';
 import { Notebook } from '@app/notebook';
+import { TagRepository } from '@app/persistence/tag-repository';
 import { NoteStore } from '@app/stores/note-store';
 import { NotebookStore } from '@app/stores/notebook-store';
 import { TagStore } from '@app/stores/tag-store';
@@ -29,8 +30,9 @@ import {
   })],
   templateUrl: './note-sidebar.html',
 })
-export class NoteSidebar {
+export class NoteSidebar implements OnInit {
   notebookStore = inject(NotebookStore);
+  tagRepo = inject(TagRepository);
   tagStore = inject(TagStore);
   noteStore = inject(NoteStore);
   theme = inject(ThemeToggler);
@@ -52,11 +54,23 @@ export class NoteSidebar {
 
   noteCount = computed(() => this.notebookStore.contents().length);
 
+  ngOnInit() {
+    this
+      .tagRepo
+      .list({ sort: 'createdAt' })
+      .subscribe(r => this.tagStore.setAll(r.items));
+  }
+
   createTag() {
     this.trashSelected.set(false);
 
     const name = this.newTagName().trim();
-    if (name) this.tagStore.create(name);
+    if (name) {
+      this
+        .tagRepo
+        .create({ name })
+        .subscribe(t => this.tagStore.add(t));
+    }
     this.newTagName.set('');
     this.showTagForm.set(false);
   }
@@ -70,6 +84,7 @@ export class NoteSidebar {
   }
 
   onTagSelect(tag: Tag) {
+    this.router.navigate(['/tags', tag.id])
   }
 
   onTrashSelect() {

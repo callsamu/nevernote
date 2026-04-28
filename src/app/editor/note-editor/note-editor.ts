@@ -19,9 +19,15 @@ import {
   heroDocumentText,
 } from '@ng-icons/heroicons/outline';
 import { Notebook } from '@app/notebook';
+import { TagRepository } from '@app/persistence/tag-repository';
+import { TagStore } from '@app/stores/tag-store';
+import { Tag } from '@app/tag';
+import { TagPickerModal } from '@app/components/tag-picker-modal/tag-picker-modal';
 
 
-export type NoteSavedEvent = Pick<Note, 'title' | 'content' | 'notebookId'>;
+export type NoteSavedEvent =
+  Pick<Note, 'title' | 'content' | 'notebookId'> &
+  Partial<Pick<Note, 'tagIds'>> ;
 
 
 @Component({
@@ -31,26 +37,38 @@ export type NoteSavedEvent = Pick<Note, 'title' | 'content' | 'notebookId'>;
     heroClipboardDocumentCheck, heroPaperClip,
     heroArchiveBoxArrowDown, heroPencilSquare, heroPlus, heroDocumentText,
   })],
-  imports: [DatePipe, FormsModule,NgIcon],
+  imports: [DatePipe, FormsModule, NgIcon, TagPickerModal],
   templateUrl: './note-editor.html',
 })
 export class NoteEditor {
-  noteRepo = inject
+  tagStore = inject(TagStore);
+  tagRepo = inject(TagRepository);
+
   factory: EditorFactory = inject(TiptapFactory);
 
   note = input.required<Note | null>();
   notebooks = input.required<Notebook[]>();
 
+  tags = computed(this.tagStore.contents);
+
   protected readonly container = viewChild.required('editorContainer');
 
   title = signal('Untitled');
+  tagIds = signal([] as string[]);
   notebookId = signal('');
   editable = signal(false);
+
+
+  activeTags = computed(() => this
+    .tagIds()
+    .map(id => this.tags().find(t => t.id === id))
+    .filter(Boolean) as Tag[]
+  );
+  tagPickerOpen = signal(false);
 
   editor!: Editor;
 
   noteSaved = output<NoteSavedEvent>();
-
 
   constructor() {
     effect(() => {
@@ -67,14 +85,14 @@ export class NoteEditor {
 
   onNoteChange(note: Note | null) {
     if (!note) {
-      this.editable.set(true);
-      this.title.set('Untitled');
-      this.notebookId.set('');
-    } else {
-      this.editable.set(false);
-      this.title.set(note.title);
-      this.notebookId.set(note.notebookId);
+      console.debug("Note is null, yet editor is rendered.");
+      return;
     }
+
+    this.editable.set(false);
+    this.title.set(note.title);
+    this.notebookId.set(note.notebookId);
+    this.tagIds.set(note.tagIds);
 
     const editor = this.factory.make({
       contentHTML: note ? note.content : '',
@@ -100,6 +118,26 @@ export class NoteEditor {
       notebookId: this.notebookId(),
     });
     this.editable.set(false);
+  }
+
+  onTagAdded(tag: Tag) {
+    this.tagIds.set([ tag.id, ...this.tagIds() ]);
+  }
+
+  onTagRemoved(tag: Tag) {
+    this.tagIds.set(
+      this.tagIds().filter(id => id === tag.id)
+    );
+  }
+
+  onTagCreated(tagName: string) {
+    this
+      .tagRepo
+      .create({ name: tagName })
+      .subscribe(t => {
+        this.tagStore.add(t);
+        this.tagIds.set([ t.id, ...this.tagIds()]);
+      });
   }
 
   onNotebookChange(id: string) {

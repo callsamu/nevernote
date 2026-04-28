@@ -92,34 +92,42 @@
     ></div>
 
   </div>
-
   <div class="flex items-center justify-between flex-wrap gap-3
               px-14 py-3 border-t border-base-300 bg-base-200/60">
 
     <div class="flex items-center gap-1.5 flex-wrap">
-      @let nb = note()?.notebookId;
-      @if (nb) {
-        <div class="badge badge-ghost gap-1 text-xs border border-base-300 py-2.5">
-          <ng-icon name="heroBookOpen" class="text-xs" />
-          {{ nb }}
+
+      @for (tag of activeTags(); track tag.id) {
+        <div class="badge badge-ghost text-xs gap-1 py-2.5
+                    border border-base-300 group/tag relative">
+          <span class="opacity-40 text-primary">#</span>
+          <span class="text-base-content/70">{{ tag.name }}</span>
+          @if (editable()) {
+            <button type="button"
+                    class="ml-0.5 opacity-0 group-hover/tag:opacity-60
+                           hover:!opacity-100 hover:text-error
+                           transition-opacity duration-100"
+                    (click)="onTagRemoved(tag)"
+                    [title]="'Remove ' + tag.name">
+              <ng-icon name="heroXMark" class="text-xs" />
+            </button>
+          }
         </div>
       }
-      @for (tagId of note()?.tagIds; track tagId) {
-        <div class="badge badge-primary badge-outline text-xs gap-0.5 py-2.5">
-          <span class="opacity-50">#</span>{{ tagId }}
-        </div>
-      }
+
       @if (editable()) {
         <button type="button"
                 class="badge badge-ghost text-xs py-2.5 cursor-pointer
                        border border-dashed border-base-content/20
                        text-base-content/35
                        hover:border-primary hover:text-primary
-                       transition-colors duration-150">
+                       transition-colors duration-150"
+                (click)="tagPickerOpen.set(true)">
           <ng-icon name="heroPlus" class="text-xs mr-0.5" />
           tag
         </button>
       }
+
     </div>
 
     @if (editable()) {
@@ -133,3 +141,13 @@
 
   </div>
 </div>
+
+<nevernote-tag-picker-modal
+  [open]="tagPickerOpen()"
+  [tags]="tags()"
+  [selectedIds]="tagIds()"
+  (dismissed)="tagPickerOpen.set(false)"
+  (tagAdded)="onTagAdded($event)"
+  (tagRemoved)="onTagRemoved($event)"
+  (tagCreated)="onTagCreated($event)"
+/>

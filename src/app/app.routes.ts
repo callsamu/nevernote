@@ -3,7 +3,7 @@ import { App }             from './app';
 import { AllNotesShell }   from './components/shells/all-notes/all-notes-shell';
 import { NotebookShell }   from './components/shells/notebook/notebook-shell';
 import { TrashShell } from './components/shells/trash/trash-shell';
-//import { TagShell }        from './components/shells/tag/tag-shell';
+import { TagShell }   from './components/shells/tag/tag-shell';
 
 export const routes: Routes = [
   { path: '', redirectTo: 'notes', pathMatch: 'full' },
@@ -16,8 +16,8 @@ export const routes: Routes = [
       { path: 'notebooks/:notebookId',           component: NotebookShell },
       { path: 'notebooks/:notebookId/:noteId',   component: NotebookShell },
 
-      //{ path: 'tags/:tagId',           component: TagShell },
-      //{ path: 'tags/:tagId/:noteId',   component: TagShell },
+      { path: 'tags/:tagId',           component: TagShell },
+      { path: 'tags/:tagId/:noteId',   component: TagShell },
 
       { path: 'trash',           component: TrashShell },
       { path: 'trash/:noteId',   component: TrashShell },

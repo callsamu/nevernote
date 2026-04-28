@@ -1,0 +1,128 @@
+@if (open()) {
+  <div class="modal modal-open modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-sm w-full p-0 overflow-hidden">
+
+      <div class="flex items-center justify-between
+                  px-4 py-3 border-b border-base-300">
+        <h3 class="font-semibold text-sm flex items-center gap-2">
+          <ng-icon name="heroTag" class="text-primary text-base" />
+          Add Tags
+        </h3>
+        <button type="button"
+                class="btn btn-ghost btn-xs btn-square"
+                (click)="dismiss()">
+          <ng-icon name="heroXMark" class="text-base" />
+        </button>
+      </div>
+
+      <div class="px-3 py-2 border-b border-base-300">
+        <label class="input input-sm input-bordered flex items-center gap-2 w-full">
+          <ng-icon name="heroMagnifyingGlass"
+                   class="text-base text-base-content/30 shrink-0" />
+          <input
+            #queryInput
+            type="text"
+            class="grow text-xs bg-transparent outline-none"
+            placeholder="Search or create a tag…"
+            [value]="query()"
+            (input)="query.set(queryInput.value)"
+            (keydown.enter)="canCreate() ? createTag() : null"
+          />
+          @if (query().trim()) {
+            <button type="button"
+                    class="btn btn-ghost btn-xs btn-square shrink-0"
+                    (click)="query.set('')">
+              <ng-icon name="heroXMark" class="text-xs" />
+            </button>
+          }
+        </label>
+      </div>
+
+      <ul class="max-h-60 overflow-y-auto divide-y divide-base-200">
+
+        @if (canCreate()) {
+          <li>
+            <button type="button"
+                    class="w-full flex items-center gap-3 px-4 py-2.5
+                           hover:bg-base-200 transition-colors duration-100
+                           text-left"
+                    (click)="createTag()">
+              <span class="flex items-center justify-center
+                           w-5 h-5 rounded-full bg-primary/10
+                           text-primary shrink-0">
+                <ng-icon name="heroPlus" class="text-xs" />
+              </span>
+              <span class="text-xs text-base-content/70">
+                Create
+                <strong class="text-base-content font-semibold">
+                  "{{ query().trim() }}"
+                </strong>
+              </span>
+            </button>
+          </li>
+        }
+
+        @for (tag of filteredTags(); track tag.id) {
+          <li>
+            <button type="button"
+                    class="w-full flex items-center gap-3 px-4 py-2.5
+                           hover:bg-base-200 transition-colors duration-100
+                           text-left group/tag"
+                    (click)="toggleTag(tag)">
+
+              <span class="w-5 h-5 rounded-full shrink-0 flex items-center
+                           justify-center border-2 transition-colors duration-100"
+                    [style.background-color]="isSelected(tag) ? (tag.color ?? 'oklch(var(--p))') : 'transparent'"
+                    [style.border-color]="tag.color ?? 'oklch(var(--p))'">
+                @if (isSelected(tag)) {
+                  <ng-icon name="heroCheck" class="text-white text-xs" />
+                }
+              </span>
+
+              <span class="flex-1 text-xs font-medium text-base-content/80 truncate">
+                # {{ tag.name }}
+              </span>
+
+              @if (isSelected(tag)) {
+                <span class="text-[10px] text-base-content/30 shrink-0">
+                  added
+                </span>
+              }
+
+            </button>
+          </li>
+        }
+
+        @if (filteredTags().length === 0 && !canCreate()) {
+          <li class="flex flex-col items-center justify-center
+                     gap-1.5 py-10 text-base-content/25 select-none">
+            <ng-icon name="heroTag" class="text-3xl" />
+            <span class="text-xs">No tags yet</span>
+          </li>
+        }
+
+      </ul>
+
+      <div class="flex items-center justify-between
+                  px-4 py-3 border-t border-base-300 bg-base-200/50">
+        <span class="text-xs text-base-content/40">
+          @if (selectedIds().length > 0) {
+            {{ selectedIds().length }}
+            {{ selectedIds().length === 1 ? 'tag' : 'tags' }} added
+          } @else {
+            No tags added
+          }
+        </span>
+        <button type="button"
+                class="btn btn-primary btn-xs"
+                (click)="dismiss()">
+          Done
+        </button>
+      </div>
+
+    </div>
+    <div class="modal-backdrop bg-base-content/20"
+         (click)="dismiss()">
+    </div>
+  </div>
+}
