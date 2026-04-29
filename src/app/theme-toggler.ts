@@ -1,8 +1,8 @@
 import { Injectable, signal } from '@angular/core';
 
 enum THEMES {
-  DARK = 'business',
-  LIGHT = 'lofi'
+  DARK = 'forest',
+  LIGHT = 'emerald'
 }
 
 @Injectable({
