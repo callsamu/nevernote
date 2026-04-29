@@ -1,0 +1,97 @@
+<div class="flex items-center gap-2 px-3 py-2
+            bg-base-100 border-b border-base-300 shrink-0">
+
+  <ng-icon name="heroMagnifyingGlass"
+           class="text-base text-base-content/30 shrink-0" />
+
+  <input
+    #searchInput
+    type="text"
+    class="flex-1 text-xs bg-transparent outline-none
+           text-base-content placeholder-base-content/30"
+    placeholder="Search notes…"
+    autofocus
+    [value]="query()"
+    (input)="query.set(searchInput.value)"
+  />
+
+  <button type="button"
+          class="btn btn-ghost btn-xs btn-square text-base-content/40
+                 hover:text-base-content"
+          title="Close search"
+          (click)="dismiss()">
+    <ng-icon name="heroXMark" class="text-base" />
+  </button>
+
+</div>
+
+<div class="relative flex-1 overflow-hidden">
+
+  @if (!hasQuery()) {
+    <div class="absolute inset-0 z-10 bg-base-100/80 backdrop-blur-[2px]
+                flex flex-col items-center justify-center gap-2
+                text-base-content/20 select-none">
+      <ng-icon name="heroMagnifyingGlass" class="text-4xl" />
+      <span class="text-xs">Type to search</span>
+    </div>
+
+  } @else if (!hasResults()) {
+    <div class="absolute inset-0 z-10 bg-base-100
+                flex flex-col items-center justify-center gap-2
+                text-base-content/25 select-none">
+      <ng-icon name="heroDocumentText" class="text-4xl" />
+      <span class="text-xs">No results for "{{ query() }}"</span>
+    </div>
+
+  } @else {
+    <ul class="absolute inset-0 z-10 overflow-y-auto
+               bg-base-100 divide-y divide-base-200">
+
+      @for (item of results(); track item.note.id) {
+        <li>
+          <button
+            type="button"
+            class="w-full text-left px-4 py-3 flex items-start gap-3
+                   hover:bg-base-200 active:bg-base-300
+                   transition-colors duration-100"
+            (click)="select(item)"
+          >
+            <div class="shrink-0 mt-0.5 text-base-content/30">
+              <ng-icon [name]="contextIcon(item)" class="text-sm" />
+            </div>
+
+            <div class="flex-1 min-w-0">
+              <div class="flex items-center justify-between gap-2">
+                <h3 class="text-sm font-semibold leading-snug truncate
+                           text-base-content">
+                  {{ item.note.title || 'Untitled' }}
+                </h3>
+                <span class="text-[10px] text-base-content/30 shrink-0 tabular-nums">
+                  {{ item.note.updatedAt | date:'M/d/yy' }}
+                </span>
+              </div>
+
+              <div class="flex items-center gap-1 mt-0.5">
+                <span class="text-[10px] font-medium px-1.5 py-0.5 rounded
+                             bg-base-200 text-base-content/40 shrink-0">
+                  {{ item.label }}
+                </span>
+                <p class="text-xs text-base-content/40 truncate leading-relaxed">
+                  <span [innerHTML]="item.note.content | safeHTML"></span>
+                </p>
+              </div>
+            </div>
+
+            <div class="shrink-0 self-center text-base-content/20">
+              <ng-icon name="heroArrowRight" class="text-xs" />
+            </div>
+
+          </button>
+        </li>
+      }
+
+    </ul>
+
+  }
+
+</div>

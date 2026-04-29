@@ -1,4 +1,4 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import { Component, computed, inject, input, output, signal } from '@angular/core';
 import { DatePipe }                  from '@angular/common';
 import { NgIconComponent, provideIcons } from '@ng-icons/core';
 import {
@@ -13,12 +13,14 @@ import { SafeHTMLPipe } from '@app/pipes/safe-html-pipe';
 import { NoteStore } from '@app/stores/note-store';
 import { NoteTrasher } from '@app/facades/note-trasher';
 import { NoteRepository } from '@app/persistence/note-repository';
+import { Router } from '@angular/router';
+import { NoteSearch, SearchResultItem } from '../note-search/note-search';
 
 
 @Component({
   selector: 'nevernote-note-list',
   standalone: true,
-  imports: [NgIconComponent, DatePipe, SafeHTMLPipe],
+  imports: [NgIconComponent, DatePipe, SafeHTMLPipe, NoteSearch],
   viewProviders: [provideIcons({
     heroMagnifyingGlass, heroBars3, heroSquares2x2, heroPlus, heroDocumentText,
     heroTrash, heroArrowUturnLeft,heroMapPin
@@ -29,10 +31,13 @@ export class NoteList {
   noteStore = inject(NoteStore);
   noteRepo = inject(NoteRepository);
   trasher = inject(NoteTrasher);
+  router = inject(Router);
 
   title = input.required<string>();
   notes = input.required<Note[]>();
   selectedNote = input.required<Note | null>();
+
+  searching = signal(false);
 
   noteSelected = output<Note>();
   newNote = output<void>();
@@ -51,5 +56,17 @@ export class NoteList {
       .update(note.id, { pinned: !note.pinned })
       .subscribe(n => this.noteStore.update(n));
   }
+
+  onResultSelected(item: SearchResultItem) {
+    this.searching.set(false);
+    if (item.context === 'trash') {
+      this.router.navigate(['/trash', item.note.id]);
+    } else if (item.context === 'notebook') {
+      this.router.navigate(['/notebooks', item.notebookId, item.note.id]);
+    } else {
+      this.router.navigate(['/notes', item.note.id]);
+    }
+  }
+
 }
 
