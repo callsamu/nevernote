@@ -86,8 +86,7 @@
       </h1>
     }
 
-    @let reminder = note()?.reminderAt;
-    @if (reminder) {
+    @if (reminder() !== undefined) {
       <div class="flex items-center gap-1.5 mt-3">
         <div class="flex items-center gap-1.5 text-xs
                     bg-primary/10 text-primary
@@ -95,7 +94,7 @@
                     px-2.5 py-1">
           <ng-icon name="heroBell" class="text-xs shrink-0" />
           <span class="tabular-nums">
-            {{ reminder | date:'MMM d · h:mm a' }}
+            {{ reminder() | date:'MMM d · h:mm a' }}
           </span>
 
           @if (editable()) {

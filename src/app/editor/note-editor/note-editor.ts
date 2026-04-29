@@ -25,13 +25,11 @@ import { TagStore } from '@app/stores/tag-store';
 import { Tag } from '@app/tag';
 import { TagPickerModal } from '@app/components/tag-picker-modal/tag-picker-modal';
 import { ReminderPickerModal } from '@app/components/reminder-picker-modal/reminder-picker-modal';
-import { ReminderService } from '@app/misc/reminder-service';
-import { NoteRepository } from '@app/persistence/note-repository';
 
 
 export type NoteSavedEvent =
   Pick<Note, 'title' | 'content' | 'notebookId'> &
-  Partial<Pick<Note, 'tagIds'>> ;
+  Partial<Pick<Note, 'tagIds' | 'reminderAt'>> ;
 
 
 @Component({
@@ -47,8 +45,6 @@ export type NoteSavedEvent =
 export class NoteEditor {
   tagStore = inject(TagStore);
   tagRepo = inject(TagRepository);
-  noteRepo = inject(NoteRepository);
-  reminderService = inject(ReminderService);
 
   factory: EditorFactory = inject(TiptapFactory);
 
@@ -63,6 +59,7 @@ export class NoteEditor {
   tagIds = signal([] as string[]);
   notebookId = signal('');
   editable = signal(false);
+  reminder = signal<Date | undefined>(undefined);
 
   reminderModalOpen = signal(false);
 
@@ -81,7 +78,6 @@ export class NoteEditor {
     effect(() => {
       const note = this.note();
       this.onNoteChange(note);
-
     });
 
     effect(() => {
@@ -100,6 +96,7 @@ export class NoteEditor {
     this.title.set(note.title);
     this.notebookId.set(note.notebookId);
     this.tagIds.set(note.tagIds);
+    this.reminder.set(note.reminderAt);
 
     const editor = this.factory.make({
       contentHTML: note ? note.content : '',
@@ -123,6 +120,8 @@ export class NoteEditor {
       title: this.title(),
       content: this.editor.getHTML(),
       notebookId: this.notebookId(),
+      tagIds: this.tagIds(),
+      reminderAt: this.reminder(),
     });
     this.editable.set(false);
   }
@@ -154,26 +153,12 @@ export class NoteEditor {
   onReminderConfirmed(date: Date) {
     const note = this.note();
     if (!note) return;
-
-    this
-      .noteRepo
-      .update(note.id, { reminderAt: date })
-      .subscribe(n =>
-        this.reminderService.schedule(n)
-      );
+    this.reminder.set(date);
   }
 
   onReminderRemoved() {
-    const note = this.note();
-    if (!note) return;
-
-    this
-      .noteRepo
-      .update(note.id, { reminderAt: undefined })
-      .subscribe(n => {
-        this.reminderService.cancel(n.id);
-        this.reminderModalOpen.set(false);
-      });
+    this.reminder.set(undefined);
+    this.reminderModalOpen.set(false);
   }
 }
 

@@ -10,6 +10,7 @@ import { NoteCreateInput, NoteRepository } from '@app/persistence/note-repositor
 import { NoteView } from '../note-view/note-view';
 import { NoteList } from '../note-list/note-list';
 import { LayoutStore } from '@app/layout-store';
+import { ReminderService } from '@app/misc/reminder-service';
 
 @Component({
   templateUrl: './note-shell.html',
@@ -25,6 +26,7 @@ export abstract class NoteShellBase {
   protected notebookStore = inject(NotebookStore);
   protected noteRepo = inject(NoteRepository);
   protected layout = inject(LayoutStore);
+  protected reminderService = inject(ReminderService);
 
   readonly noteId = toSignal(
     this.route.params.pipe(map(p => p['noteId'] ?? null)),
@@ -66,7 +68,17 @@ export abstract class NoteShellBase {
       this
         .noteRepo
         .update(selected.id, { ...event })
-        .subscribe(n => this.noteStore.update(n));
+        .subscribe(updated =>  {
+          this.noteStore.update(updated);
+
+          if (updated.reminderAt?.getTime !== selected.reminderAt?.getTime) {
+            if (updated.reminderAt === undefined) {
+              this.reminderService.cancel(updated.id)
+            } else {
+              this.reminderService.schedule(updated);
+            }
+          }
+        });
     }
   }
 
