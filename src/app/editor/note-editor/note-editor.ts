@@ -16,6 +16,7 @@ import {
   heroArchiveBoxArrowDown,
   heroPencilSquare,
   heroPlus,
+  heroBell,
   heroDocumentText,
 } from '@ng-icons/heroicons/outline';
 import { Notebook } from '@app/notebook';
@@ -23,6 +24,9 @@ import { TagRepository } from '@app/persistence/tag-repository';
 import { TagStore } from '@app/stores/tag-store';
 import { Tag } from '@app/tag';
 import { TagPickerModal } from '@app/components/tag-picker-modal/tag-picker-modal';
+import { ReminderPickerModal } from '@app/components/reminder-picker-modal/reminder-picker-modal';
+import { ReminderService } from '@app/misc/reminder-service';
+import { NoteRepository } from '@app/persistence/note-repository';
 
 
 export type NoteSavedEvent =
@@ -34,15 +38,17 @@ export type NoteSavedEvent =
   selector: 'nevernote-note-editor',
   providers: [provideIcons({
     heroBookOpen, heroClock,
-    heroClipboardDocumentCheck, heroPaperClip,
+    heroClipboardDocumentCheck, heroPaperClip, heroBell,
     heroArchiveBoxArrowDown, heroPencilSquare, heroPlus, heroDocumentText,
   })],
-  imports: [DatePipe, FormsModule, NgIcon, TagPickerModal],
+  imports: [DatePipe, FormsModule, NgIcon, TagPickerModal, ReminderPickerModal],
   templateUrl: './note-editor.html',
 })
 export class NoteEditor {
   tagStore = inject(TagStore);
   tagRepo = inject(TagRepository);
+  noteRepo = inject(NoteRepository);
+  reminderService = inject(ReminderService);
 
   factory: EditorFactory = inject(TiptapFactory);
 
@@ -58,6 +64,7 @@ export class NoteEditor {
   notebookId = signal('');
   editable = signal(false);
 
+  reminderModalOpen = signal(false);
 
   activeTags = computed(() => this
     .tagIds()
@@ -143,5 +150,30 @@ export class NoteEditor {
   onNotebookChange(id: string) {
     this.notebookId.set(id);
   };
+
+  onReminderConfirmed(date: Date) {
+    const note = this.note();
+    if (!note) return;
+
+    this
+      .noteRepo
+      .update(note.id, { reminderAt: date })
+      .subscribe(n =>
+        this.reminderService.schedule(n)
+      );
+  }
+
+  onReminderRemoved() {
+    const note = this.note();
+    if (!note) return;
+
+    this
+      .noteRepo
+      .update(note.id, { reminderAt: undefined })
+      .subscribe(n => {
+        this.reminderService.cancel(n.id);
+        this.reminderModalOpen.set(false);
+      });
+  }
 }
 

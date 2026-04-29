@@ -11,8 +11,9 @@ export interface Note {
 
   notebookId: string;
   tagIds: string[];
-  pinned: boolean;
-  //remainder?: Reminder;
 
+  pinned: boolean;
   trashed: boolean;
+
+  reminderAt?: Date;
 }

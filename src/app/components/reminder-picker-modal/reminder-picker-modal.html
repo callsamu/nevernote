@@ -1,0 +1,85 @@
+@if (open()) {
+  <div class="modal modal-open modal-bottom sm:modal-middle">
+    <div class="modal-box max-w-xs w-full">
+
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="font-semibold text-sm flex items-center gap-2">
+          <ng-icon name="heroBell" class="text-primary text-base" />
+          {{ hasExisting() ? 'Edit Reminder' : 'Add Reminder' }}
+        </h3>
+        <button type="button"
+                class="btn btn-ghost btn-xs btn-square"
+                (click)="dismissed.emit()">
+          <ng-icon name="heroXMark" class="text-base" />
+        </button>
+      </div>
+
+      <div class="flex items-center gap-2">
+
+        <input
+          #amountInput
+          type="number"
+          class="input input-sm input-bordered w-24 tabular-nums"
+          min="1"
+          max="999"
+          [value]="amount()"
+          (input)="amount.set(+amountInput.value)"
+        />
+
+        <select
+          #unitSelect
+          class="select select-sm select-bordered flex-1"
+          [value]="unit()"
+          (change)="unit.set($any(unitSelect.value))"
+        >
+          <option value="minutes">Minutes</option>
+          <option value="hours">Hours</option>
+        </select>
+
+      </div>
+
+      <p class="text-xs text-base-content/40 mt-3 flex items-center gap-1.5">
+        <ng-icon name="heroBell" class="text-xs shrink-0" />
+        Reminder at
+        <span class="font-medium text-base-content/60">
+          {{ previewLabel() }}
+        </span>
+      </p>
+
+      <div class="modal-action mt-5 flex items-center justify-between">
+
+        @if (hasExisting()) {
+          <button type="button"
+                  class="btn btn-ghost btn-sm gap-1.5 text-error/60
+                         hover:text-error hover:bg-error/10"
+                  (click)="remove()">
+            <ng-icon name="heroTrash" class="text-sm" />
+            Remove
+          </button>
+        } @else {
+          <span></span>
+        }
+
+        <div class="flex gap-2">
+          <button type="button"
+                  class="btn btn-ghost btn-sm"
+                  (click)="dismissed.emit()">
+            Cancel
+          </button>
+          <button type="button"
+                  class="btn btn-primary btn-sm gap-1.5"
+                  [disabled]="!isValid()"
+                  (click)="confirm()">
+            <ng-icon name="heroCheck" class="text-sm" />
+            {{ hasExisting() ? 'Update' : 'Set' }}
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+    <div class="modal-backdrop bg-base-content/20"
+         (click)="dismissed.emit()">
+    </div>
+  </div>
+}

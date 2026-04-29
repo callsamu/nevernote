@@ -19,18 +19,17 @@ export class TiptapFactory implements EditorFactory {
       extensions: [
         StarterKit.configure({
           heading: {
-            levels: [2, 3, 4]
+            levels: [1, 2, 3, 4]
           }
         }),
         CharacterCount,
       ],
       editorProps: {
         attributes: {
-          class: 'prose prose-sm'
+          class: 'prose prose-sm flex flex-col flex-1 outline-none'
         }
       },
       onUpdate({ editor }) {
-        console.info("edit");
         words.set(editor.storage.characterCount.words());
       }
     })

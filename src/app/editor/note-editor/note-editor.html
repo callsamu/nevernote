@@ -39,6 +39,14 @@
     <div class="flex items-center gap-2 shrink-0">
       @if (editable()) {
         <button type="button"
+                class="join-item btn btn-xs btn-ghost px-2.5"
+                [class.text-primary]="note()?.reminderAt"
+                [class.opacity-100]="note()?.reminderAt"
+                title="Set reminder"
+                (click)="reminderModalOpen.set(true)">
+          <ng-icon name="heroBell" class="text-sm" />
+        </button>
+        <button type="button"
                 class="btn btn-sm btn-primary gap-1.5"
                 (click)="onSave()">
           <ng-icon name="heroArchiveBoxArrowDown" class="text-base" />
@@ -47,6 +55,7 @@
       } @else {
         <button type="button"
                 class="btn btn-sm btn-outline btn-primary gap-1.5"
+                [disabled]="note()?.trashed === true"
                 (click)="onEdit()">
           <ng-icon name="heroPencilSquare" class="text-base" />
           Edit
@@ -77,14 +86,47 @@
       </h1>
     }
 
-    <div class="h-px bg-base-300 my-5 origin-left transition-all duration-300"
+    @let reminder = note()?.reminderAt;
+    @if (reminder) {
+      <div class="flex items-center gap-1.5 mt-3">
+        <div class="flex items-center gap-1.5 text-xs
+                    bg-primary/10 text-primary
+                    border border-primary/20 rounded-full
+                    px-2.5 py-1">
+          <ng-icon name="heroBell" class="text-xs shrink-0" />
+          <span class="tabular-nums">
+            {{ reminder | date:'MMM d · h:mm a' }}
+          </span>
+
+          @if (editable()) {
+            <button type="button"
+                    class="ml-0.5 opacity-50 hover:opacity-100
+                           transition-opacity duration-100"
+                    title="Edit reminder"
+                    (click)="reminderModalOpen.set(true)">
+              <ng-icon name="heroPencilSquare" class="text-xs" />
+            </button>
+            <button type="button"
+                    class="opacity-50 hover:opacity-100 hover:text-error
+                           transition-opacity duration-100"
+                    title="Remove reminder"
+                    (click)="onReminderRemoved()">
+              <ng-icon name="heroXMark" class="text-xs" />
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+
+    <div class="h-px bg-base-300 my-3 origin-left transition-all duration-300"
          [class.scale-x-0]="!editable()"
          [class.opacity-0]="!editable()">
     </div>
 
     <div
       #editorContainer
-      class="note-body flex-1 font-sans text-base leading-relaxed
+      class="note-body flex flex-col w-full grow h-full font-sans text-base leading-relaxed
              text-base-content/90 outline-none min-h-64 caret-primary"
       role="textbox"
       aria-multiline="true"
@@ -151,3 +193,13 @@
   (tagRemoved)="onTagRemoved($event)"
   (tagCreated)="onTagCreated($event)"
 />
+
+<nevernote-reminder-picker-modal
+  [open]="reminderModalOpen()"
+  [reminderAt]="note()?.reminderAt ?? null"
+  (confirmed)="onReminderConfirmed($event)"
+  (removed)="onReminderRemoved()"
+  (dismissed)="reminderModalOpen.set(false)"
+/>
+
+
